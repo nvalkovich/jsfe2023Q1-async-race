@@ -1,0 +1,144 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #3a3434;
+  color: #ffffff;
+}
+
+a {
+  text-decoration: none;
+}
+
+.btn {
+  cursor: pointer;
+  border: 1px solid rgba(10, 40, 24, 0.827);
+  padding: 2px 6px 4px 6px;
+  border-radius: 3px;
+}
+
+.header-btns {
+  display: flex;
+  gap: 10px;
+}
+
+.header-btns__btn {
+  color: #ffffff;
+  display: block;
+  padding: 2px 6px 4px 6px;
+  background-color: #1b6124;
+  border-radius: 3px;
+}
+
+.settings {
+  margin-top: 20px;
+}
+
+.input-fields-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.input-field {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  padding-bottom: 10px;
+}
+
+.input {
+  width: 130px;
+}
+
+.select-color-field{
+  width: 25px;
+  background-color: #9b8484;
+}
+
+
+.input-container__btn {
+  text-align: center;
+  width: 60px;
+  background-color: #637473;
+  border-radius: 3px;
+}
+
+.control-btns-container {
+  display: flex;
+  gap: 9px;
+}
+
+.control-btns-container__btn {
+  text-align: center;
+  width: 45px;
+}
+
+.btn_race,
+.btn_reset {
+  width: 60px;
+  background-color: #1b6124;
+}
+
+.btn_generate {
+  width: 97px;
+  background-color: #637473;
+}
+
+.cars-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.car {
+  border-bottom: dashed 2px solid white;
+  border-style: none none dashed none ;
+}
+
+.car__header,
+.car-header__btns{
+  display: flex;
+  align-items: center;
+  height: 30px;
+  gap: 5px;
+}
+
+.car-header__btn{
+  background-color: #637473;
+}
+
+.car-drive {
+  display: flex;
+  position: relative;
+}
+
+.car-drive__btns {
+  display: flex;
+  align-items: center;
+  height: 22px;
+  gap: 2px;
+  margin: 5px 0px 30px 0px;
+}
+
+.car-drive__btn {
+  background-color: #1b6124;
+}
+
+.car-drive__image {
+  margin-left: 10px;
+  display: flex;
+  align-items: end;
+}
+
+.car-drive__flag {
+  width: 35px;
+  height: 35px;
+  background-image: url(./assets/images/flag.svg);
+  background-size: 100%;
+  background-repeat: no-repeat;
+  position: absolute;
+  right: 100px;
+  bottom: 5%;
+} 
