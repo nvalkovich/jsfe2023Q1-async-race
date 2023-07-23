@@ -6,6 +6,8 @@ import Api from './api';
 class Garage extends Component {
   public static carsNumber: number;
 
+  public static selectedCarID: number;
+
   private api: Api;
 
   public static carsData: [CarData] | [];
@@ -60,22 +62,21 @@ class Garage extends Component {
 
   public renderCars(container: HTMLElement, data: [CarData]): HTMLElement {
     data.forEach((car) => {
-      container.append(this.renderCar(car));
+      const carContainer = createBlock({
+        tag: 'div',
+        className: 'car',
+        parentBlock: container,
+      });
+      this.renderCar(car, carContainer);
     });
     return container;
   }
 
-  public renderCar(data: CarData): HTMLElement {
-    const carContainer = createBlock({
-      tag: 'div',
-      className: 'car',
-    });
-    carContainer.id = `${data.id}`;
-
+  public renderCar(data: CarData, container: HTMLElement): HTMLElement {
     const carContainerHeader = createBlock({
       tag: 'div',
       className: 'car__header car-header',
-      parentBlock: carContainer,
+      parentBlock: container,
     });
 
     const carHeaderBtns = this.renderCarHeaderBtns();
@@ -91,7 +92,7 @@ class Garage extends Component {
     const carDriveContainer = createBlock({
       tag: 'div',
       className: 'car__drive car-drive',
-      parentBlock: carContainer,
+      parentBlock: container,
     });
 
     const carDriveBtns = this.renderCarDriveBtns();
@@ -117,7 +118,12 @@ class Garage extends Component {
       className: 'car-drive__flag',
       parentBlock: carDriveContainer,
     });
-    return carContainer;
+
+    const parent = carContainerHeader.closest('.car');
+    if (parent) {
+      parent.id = `${data.id}`;
+    }
+    return container;
   }
 
   private renderCarHeaderBtns(): HTMLElement {
@@ -139,7 +145,29 @@ class Garage extends Component {
     });
 
     carRemoveBtn.addEventListener('click', this.btnRemoveHandler.bind(this));
+    carSelectBtn.addEventListener('click', this.btnSelectHandler.bind(this));
+
     return carHeaderBtns;
+  }
+
+  private async btnSelectHandler(e: Event): Promise<void> {
+    const { target } = e;
+    if (target && target instanceof HTMLElement) {
+      const id = Number(target.closest('.car')?.id);
+
+      const inputNameUpdate: HTMLInputElement = findElement('.input-text_update');
+      const inputColorPicker: HTMLInputElement = findElement('.input-color-picker_update');
+      const inputBtn: HTMLButtonElement = findElement('.btn_update');
+      inputNameUpdate.disabled = false;
+      inputColorPicker.disabled = false;
+      inputBtn.disabled = false;
+
+      const carData = await this.api.getCar(id);
+      inputNameUpdate.value = carData.name;
+      inputColorPicker.value = carData.color;
+
+      Garage.selectedCarID = id;
+    }
   }
 
   private async btnRemoveHandler(e: Event): Promise<void> {

@@ -3,6 +3,7 @@ import { createBlock, findElement } from './helpers';
 import { InputCategories } from '../types/enums';
 import Garage from './garage';
 import Api from './api';
+import { CarData } from '../types/interfaces';
 
 const inputFieldsCategories = Object.values(InputCategories);
 const carControlBtnsCategories = ['race', 'reset', 'generate'];
@@ -49,11 +50,17 @@ class Settings extends Component {
       });
       inputColorPicker.type = 'color';
       const inputBtn = createBlock({
-        tag: 'div',
+        tag: 'button',
         className: `input-container__btn btn btn_${category}`,
         innerHTML: `${category}`,
         parentBlock: inputField,
       });
+
+      if (category === InputCategories.Update) {
+        inputText.disabled = true;
+        inputColorPicker.disabled = true;
+        inputBtn.disabled = true;
+      }
 
       inputBtn.addEventListener('click', this.inputBtnHandler.bind(this));
 
@@ -90,19 +97,38 @@ class Settings extends Component {
       }
 
       const inputColorPicker: HTMLInputElement = findElement(`.input-color-picker_${category}`);
+      const inputBtn: HTMLButtonElement = findElement(`.btn_${category}`);
+
+      const newCarData = {
+        name: inputName.value,
+        color: inputColorPicker.value,
+      };
+
+      let newCar: CarData;
+      let carContainer: HTMLDivElement;
 
       if (category === InputCategories.Create) {
-        this.api.createCar({
-          name: inputName.value,
-          color: inputColorPicker.value,
-        });
-
+        this.api.createCar(newCarData);
         const cars = await this.api.getCars();
-        const lastCar = cars[cars.length - 1];
-        const newCar = this.garage.renderCar(lastCar);
-        carsContainer.append(newCar);
+        newCar = cars[cars.length - 1];
+        carContainer = createBlock({
+          tag: 'div',
+          className: 'car',
+          parentBlock: carsContainer,
+        });
         await this.garage.rerenderCarsNumber();
+      } else {
+        const id = Garage.selectedCarID;
+        newCar = await this.api.updateCar(id, newCarData);
+        carContainer = findElement(`[id='${id}']`);
+        console.log(carContainer);
+        carContainer.innerHTML = '';
+        inputName.disabled = true;
+        inputColorPicker.disabled = true;
+        inputBtn.disabled = true;
       }
+
+      this.garage.renderCar(newCar, carContainer);
       inputName.value = '';
       inputColorPicker.value = '';
     }

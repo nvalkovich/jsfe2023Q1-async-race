@@ -23,20 +23,36 @@ class Api {
     return response.json();
   }
 
-  public async getCars():Promise<[CarData]> {
-    const queryString = (queryParams: { key : string, value: string }[]): string => {
-      let string = '';
-      if (queryParams.length) {
-        string = `?${
-          queryParams.map((x):string => `${x.key}=${x.value}`).join('&')}`;
-      }
-      return string;
-    };
+  public getQueryString(queryParams: { key : string, value: string }[]):string {
+    let string = '';
+    if (queryParams.length) {
+      string = `?${
+        queryParams.map((x):string => `${x.key}=${x.value}`).join('&')}`;
+    }
+    return string;
+  }
 
-    const query = queryString([{ key: 'page', value: '1' }, { key: 'limit', value: '1' }]);
+  public async getCars():Promise<[CarData]> {
+    const query = this.getQueryString([{ key: 'page', value: '1' }, { key: 'limit', value: '1' }]);
     const response: Response = await fetch(`${this.baseURL}${this.path.garage}${query}`);
     const data = response.json();
     return data;
+  }
+
+  public async getCar(id: number):Promise<CarData> {
+    const response = await fetch(`${this.baseURL}${this.path.garage}/${id}`);
+    return response.json();
+  }
+
+  public async updateCar(id: number, data: { [key: string]: string }):Promise<CarData> {
+    const response = await fetch(`${this.baseURL}${this.path.garage}/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    return response.json();
   }
 
   public async removeCar(id: number):Promise<object> {
