@@ -30,7 +30,6 @@ class Api {
         string = `?${
           queryParams.map((x):string => `${x.key}=${x.value}`).join('&')}`;
       }
-      console.log('str', string);
       return string;
     };
 
@@ -38,6 +37,13 @@ class Api {
     const response: Response = await fetch(`${this.baseURL}${this.path.garage}${query}`);
     const data = response.json();
     return data;
+  }
+
+  public async removeCar(id: number):Promise<object> {
+    const response = await fetch(`${this.baseURL}${this.path.garage}/${id}`, {
+      method: 'DELETE',
+    });
+    return response.json();
   }
 }
 

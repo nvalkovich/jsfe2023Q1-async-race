@@ -15,7 +15,7 @@ class Garage extends Component {
     this.api = new Api();
   }
 
-  public async render():Promise<HTMLElement> {
+  public async render(): Promise<HTMLElement> {
     Garage.carsData = await this.api.getCars();
     this.setCarsNumber();
 
@@ -35,14 +35,12 @@ class Garage extends Component {
 
     garageTitle.innerHTML = `Garage (${Garage.carsNumber})`;
 
-    console.log(this.container);
     return this.container;
   }
 
-  public async updateCarsData():Promise <void> {
+  public async updateCarsData(): Promise<void> {
     const carsData = await this.api.getCars();
     Garage.carsData = carsData;
-    console.log(Garage.carsData);
   }
 
   public setCarsNumber(): void {
@@ -54,7 +52,13 @@ class Garage extends Component {
     garageTitle.innerHTML = `Garage (${Garage.carsNumber})`;
   }
 
-  public renderCars(container: HTMLElement, data:[CarData]):HTMLElement {
+  public async rerenderCarsNumber(): Promise<void> {
+    await this.updateCarsData();
+    await this.setCarsNumber();
+    this.renderCarsNumber();
+  }
+
+  public renderCars(container: HTMLElement, data: [CarData]): HTMLElement {
     data.forEach((car) => {
       container.append(this.renderCar(car));
     });
@@ -62,12 +66,12 @@ class Garage extends Component {
   }
 
   public renderCar(data: CarData): HTMLElement {
-    console.log('before', Garage.carsData);
-
     const carContainer = createBlock({
       tag: 'div',
       className: 'car',
     });
+    carContainer.id = `${data.id}`;
+
     const carContainerHeader = createBlock({
       tag: 'div',
       className: 'car__header car-header',
@@ -113,7 +117,6 @@ class Garage extends Component {
       className: 'car-drive__flag',
       parentBlock: carDriveContainer,
     });
-
     return carContainer;
   }
 
@@ -135,7 +138,20 @@ class Garage extends Component {
       parentBlock: carHeaderBtns,
     });
 
+    carRemoveBtn.addEventListener('click', this.btnRemoveHandler.bind(this));
     return carHeaderBtns;
+  }
+
+  private async btnRemoveHandler(e: Event): Promise<void> {
+    const { target } = e;
+    if (target && target instanceof HTMLElement) {
+      const carsContainer: HTMLDivElement = findElement('.cars-container');
+      const id = Number(target.closest('.car')?.id);
+      const carElement: HTMLDivElement = findElement(`[id='${id}']`);
+      carsContainer.removeChild(carElement);
+      this.api.removeCar(id);
+      await this.rerenderCarsNumber();
+    }
   }
 
   private renderCarDriveBtns(): HTMLElement {

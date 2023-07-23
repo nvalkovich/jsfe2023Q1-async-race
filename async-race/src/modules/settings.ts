@@ -1,15 +1,26 @@
 import Component from './component';
 import { createBlock, findElement } from './helpers';
-import inputBtnHandler from './handlers';
 import { InputCategories } from '../types/enums';
+import Garage from './garage';
+import Api from './api';
 
 const inputFieldsCategories = Object.values(InputCategories);
-console.log(inputFieldsCategories);
 const carControlBtnsCategories = ['race', 'reset', 'generate'];
 
 class Settings extends Component {
+  private api: Api;
+
+  private garage: Garage;
+
+  constructor() {
+    super('div', 'settings');
+    this.api = new Api();
+    this.garage = new Garage('div', 'cars');
+  }
+
   public render():HTMLElement {
     this.renderInputFields();
+    this.renderCarControlBtns();
     return this.container;
   }
 
@@ -44,7 +55,7 @@ class Settings extends Component {
         parentBlock: inputField,
       });
 
-      inputBtn.addEventListener('click', inputBtnHandler);
+      inputBtn.addEventListener('click', this.inputBtnHandler.bind(this));
 
       this.container.append(inputFieldsContainer);
     });
@@ -64,6 +75,38 @@ class Settings extends Component {
       });
     });
     this.container.append(btnsControlContainer);
+  }
+
+  private async inputBtnHandler(e: Event): Promise<HTMLElement | null> {
+    const carsContainer: HTMLDivElement = findElement('.cars-container');
+
+    const { target } = e;
+    if (target && target instanceof HTMLElement) {
+      const category = target.innerHTML;
+      const inputName: HTMLInputElement = findElement(`.input-text_${category}`);
+
+      if (!inputName.value) {
+        return null;
+      }
+
+      const inputColorPicker: HTMLInputElement = findElement(`.input-color-picker_${category}`);
+
+      if (category === InputCategories.Create) {
+        this.api.createCar({
+          name: inputName.value,
+          color: inputColorPicker.value,
+        });
+
+        const cars = await this.api.getCars();
+        const lastCar = cars[cars.length - 1];
+        const newCar = this.garage.renderCar(lastCar);
+        carsContainer.append(newCar);
+        await this.garage.rerenderCarsNumber();
+      }
+      inputName.value = '';
+      inputColorPicker.value = '';
+    }
+    return carsContainer;
   }
 }
 

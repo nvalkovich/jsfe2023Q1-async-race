@@ -5,7 +5,7 @@ import Garage from '../../garage';
 class GaragePage extends Page {
   private cars = new Garage('div', 'cars');
 
-  private settings = new Settings('div', 'settings');
+  private settings = new Settings();
 
   public render():HTMLElement {
     const settingsBlock = this.settings.render();
