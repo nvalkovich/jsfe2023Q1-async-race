@@ -1,6 +1,6 @@
-import PageIds from '../types/enums';
+import { PageIds } from '../types/enums';
 import Component from './component';
-import createBlock from './helpers';
+import { createBlock } from './helpers';
 
 const buttons = [
   {

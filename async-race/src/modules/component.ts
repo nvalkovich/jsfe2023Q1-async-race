@@ -1,4 +1,4 @@
-import createBlock from './helpers';
+import { createBlock } from './helpers';
 
 abstract class Component {
   protected container: HTMLElement;

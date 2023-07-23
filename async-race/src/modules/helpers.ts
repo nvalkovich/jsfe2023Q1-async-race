@@ -1,4 +1,4 @@
-const createBlock = <K extends keyof HTMLElementTagNameMap>(data: {
+export const createBlock = <K extends keyof HTMLElementTagNameMap>(data: {
   tag: K,
   className?: string;
   innerHTML?: string;
@@ -23,4 +23,10 @@ const createBlock = <K extends keyof HTMLElementTagNameMap>(data: {
   return block;
 };
 
-export default createBlock;
+export const findElement = <T extends Element>(selector: string): T => {
+  const element = document.querySelector<T>(selector);
+  if (!element) {
+    throw new Error(`Element for selector "${selector}" is not found`);
+  }
+  return element;
+};

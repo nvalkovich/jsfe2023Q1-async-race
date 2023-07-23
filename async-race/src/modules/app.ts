@@ -1,7 +1,7 @@
 import GaragePage from './pages/garage/garagePage';
 import WinnersPage from './pages/winners/winnersPage';
 import Page from './pages/page';
-import PageIds from '../types/enums';
+import { PageIds } from '../types/enums';
 import HeaderButtons from './headerBtns';
 
 class App {
@@ -42,7 +42,6 @@ class App {
     App.container.append(this.header.render());
     const mainPageHtml = this.initialPage.render();
     App.container.append(mainPageHtml);
-    App.renderNewPage('garage');
     window.location.hash = `#${App.defaultPageID}`;
   }
 

@@ -51,11 +51,10 @@ a {
   width: 130px;
 }
 
-.select-color-field{
+.input-color-picker {
   width: 25px;
-  background-color: #9b8484;
+  padding: 0px;
 }
-
 
 .input-container__btn {
   text-align: center;

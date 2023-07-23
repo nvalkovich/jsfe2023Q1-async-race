@@ -1,13 +1,15 @@
 import Component from './component';
-import createBlock from './helpers';
+import { createBlock, findElement } from './helpers';
+import inputBtnHandler from './handlers';
+import { InputCategories } from '../types/enums';
 
-const inputFieldsCategories = ['create', 'update'];
+const inputFieldsCategories = Object.values(InputCategories);
+console.log(inputFieldsCategories);
 const carControlBtnsCategories = ['race', 'reset', 'generate'];
 
 class Settings extends Component {
   public render():HTMLElement {
     this.renderInputFields();
-    this.renderCarControlBtns();
     return this.container;
   }
 
@@ -23,22 +25,26 @@ class Settings extends Component {
         className: `input-field input-field_${category}`,
         parentBlock: inputFieldsContainer,
       });
-      const input = createBlock({
+      const inputText = createBlock({
         tag: 'input',
-        className: `input input_${category}`,
+        className: `input input-text input-text_${category}`,
         parentBlock: inputField,
       });
-      const selectColorField = createBlock({
-        tag: 'div',
-        className: `select-color-field select-color-field_${category}`,
+      inputText.type = 'text';
+      const inputColorPicker = createBlock({
+        tag: 'input',
+        className: `input input-color-picker input-color-picker_${category}`,
         parentBlock: inputField,
       });
+      inputColorPicker.type = 'color';
       const inputBtn = createBlock({
         tag: 'div',
         className: `input-container__btn btn btn_${category}`,
         innerHTML: `${category}`,
         parentBlock: inputField,
       });
+
+      inputBtn.addEventListener('click', inputBtnHandler);
 
       this.container.append(inputFieldsContainer);
     });

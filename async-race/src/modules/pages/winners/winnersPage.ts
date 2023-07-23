@@ -1,5 +1,5 @@
 import Page from '../page';
-import createBlock from '../../helpers';
+import { createBlock } from '../../helpers';
 
 class WinnersPage extends Page {
   public render():HTMLElement {

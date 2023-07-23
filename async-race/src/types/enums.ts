@@ -1,6 +1,9 @@
-const enum PageIds {
+export enum PageIds {
   Garage = 'garage',
   Winners = 'winners',
 }
 
-export default PageIds;
+export enum InputCategories {
+  Create = 'create',
+  Update = 'update',
+}
