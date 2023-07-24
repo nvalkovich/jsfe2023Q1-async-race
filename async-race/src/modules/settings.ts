@@ -1,12 +1,11 @@
 import Component from './component';
-import { createBlock, findElement } from './helpers';
+import { createBlock, findElement, generateCars } from './helpers';
 import { InputCategories } from '../types/enums';
 import Garage from './garage';
 import Api from './api';
-import { CarData } from '../types/interfaces';
+import CarData from '../types/interfaces';
 
 const inputFieldsCategories = Object.values(InputCategories);
-const carControlBtnsCategories = ['race', 'reset', 'generate'];
 
 class Settings extends Component {
   private api: Api;
@@ -73,15 +72,35 @@ class Settings extends Component {
       tag: 'div',
       className: 'control-btns-container',
     });
-    carControlBtnsCategories.forEach((category) => {
-      const btn = createBlock({
-        tag: 'div',
-        className: `control-btns-container__btn btn btn_${category}`,
-        innerHTML: `${category}`,
-        parentBlock: btnsControlContainer,
-      });
+
+    const carControlBtnsCategories = ['race', 'reset', 'generate'];
+    const btnRace = createBlock({
+      tag: 'div',
+      className: 'control-btns-container__btn btn btn_race',
+      innerHTML: 'race',
+      parentBlock: btnsControlContainer,
     });
+    const btnReset = createBlock({
+      tag: 'div',
+      className: 'control-btns-container__btn btn btn_reset',
+      innerHTML: 'reset',
+      parentBlock: btnsControlContainer,
+    });
+    const btnGenerate = createBlock({
+      tag: 'div',
+      className: 'control-btns-container__btn btn btn_generate',
+      innerHTML: 'generate',
+      parentBlock: btnsControlContainer,
+    });
+    btnGenerate.addEventListener('click', this.btnGenerateHandler.bind(this));
     this.container.append(btnsControlContainer);
+  }
+
+  private async btnGenerateHandler(e: Event): Promise<void> {
+    const carsData = generateCars();
+    const carsContainer: HTMLDivElement = findElement('.cars-container');
+    await this.garage.renderCars(carsContainer, carsData);
+    await this.garage.rerenderCarsNumber();
   }
 
   private async inputBtnHandler(e: Event): Promise<HTMLElement | null> {

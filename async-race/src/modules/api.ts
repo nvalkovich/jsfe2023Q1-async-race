@@ -1,4 +1,4 @@
-import { CarData } from '../types/interfaces';
+import CarData from '../types/interfaces';
 
 class Api {
   private baseURL: string;

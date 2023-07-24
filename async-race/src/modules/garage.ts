@@ -1,5 +1,5 @@
 import Component from './component';
-import { CarData } from '../types/interfaces';
+import CarData from '../types/interfaces';
 import { createBlock, findElement } from './helpers';
 import Api from './api';
 
@@ -60,7 +60,7 @@ class Garage extends Component {
     this.renderCarsNumber();
   }
 
-  public renderCars(container: HTMLElement, data: [CarData]): HTMLElement {
+  public renderCars(container: HTMLElement, data: [CarData] | CarData[]): HTMLElement {
     data.forEach((car) => {
       const carContainer = createBlock({
         tag: 'div',

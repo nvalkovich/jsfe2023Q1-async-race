@@ -1,7 +1,7 @@
-export interface CarData {
+interface CarData {
   'name': string,
   'color': string,
-  'id': number,
+  'id'?: number,
 }
 
 export default CarData;
