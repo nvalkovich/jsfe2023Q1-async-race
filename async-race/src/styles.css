@@ -11,6 +11,10 @@ a {
   text-decoration: none;
 }
 
+button {
+  background-color: #637473;
+}
+
 button:disabled {
   cursor: auto;
 }
@@ -31,9 +35,7 @@ button:disabled {
 .header-btns__btn {
   color: #ffffff;
   display: block;
-  padding: 2px 6px 4px 6px;
   background-color: #1b6124;
-  border-radius: 3px;
 }
 
 .settings {
@@ -146,4 +148,14 @@ button:disabled {
   position: absolute;
   right: 100px;
   bottom: 5%;
-} 
+}
+
+.page-buttons {
+  margin-top: 10px;
+  display: flex;
+  gap: 5px;
+}
+
+.page-buttons__btn {
+  padding: 6px 6px 4px 6px;
+}

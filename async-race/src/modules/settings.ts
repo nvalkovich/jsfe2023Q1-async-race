@@ -99,8 +99,12 @@ class Settings extends Component {
   private async btnGenerateHandler(e: Event): Promise<void> {
     const carsData = generateCars();
     const carsContainer: HTMLDivElement = findElement('.cars-container');
-    await this.garage.renderCars(carsContainer, carsData);
-    await this.garage.rerenderCarsNumber();
+    const cars = await this.api.getCars();
+    const garageElement = findElement('.cars');
+    garageElement.innerHTML = '';
+    Garage.pageNum = Math.ceil(cars.length / 7);
+    const newGarage = await this.garage.render();
+    garageElement.append(newGarage);
   }
 
   private async inputBtnHandler(e: Event): Promise<HTMLElement | null> {
@@ -129,25 +133,22 @@ class Settings extends Component {
       if (category === InputCategories.Create) {
         this.api.createCar(newCarData);
         const cars = await this.api.getCars();
-        newCar = cars[cars.length - 1];
-        carContainer = createBlock({
-          tag: 'div',
-          className: 'car',
-          parentBlock: carsContainer,
-        });
         await this.garage.rerenderCarsNumber();
+        const garageElement = findElement('.cars');
+        garageElement.innerHTML = '';
+        Garage.pageNum = Math.ceil(cars.length / 7);
+        const newGarage = await this.garage.render();
+        garageElement.append(newGarage);
       } else {
         const id = Garage.selectedCarID;
         newCar = await this.api.updateCar(id, newCarData);
         carContainer = findElement(`[id='${id}']`);
-        console.log(carContainer);
         carContainer.innerHTML = '';
         inputName.disabled = true;
         inputColorPicker.disabled = true;
         inputBtn.disabled = true;
+        this.garage.renderCar(newCar, carContainer);
       }
-
-      this.garage.renderCar(newCar, carContainer);
       inputName.value = '';
       inputColorPicker.value = '';
     }

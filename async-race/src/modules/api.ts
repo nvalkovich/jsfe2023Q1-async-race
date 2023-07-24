@@ -3,6 +3,8 @@ import CarData from '../types/interfaces';
 class Api {
   private baseURL: string;
 
+  private limit: number;
+
   private path:{ [key: string]: string };
 
   constructor() {
@@ -10,6 +12,7 @@ class Api {
     this.path = {
       garage: '/garage',
     };
+    this.limit = 7;
   }
 
   public async createCar(data: CarData | object = {}):Promise<[CarData]> {
@@ -27,13 +30,19 @@ class Api {
     let string = '';
     if (queryParams.length) {
       string = `?${
-        queryParams.map((x):string => `${x.key}=${x.value}`).join('&')}`;
+        queryParams.map((x):string => `_${x.key}=${x.value}`).join('&')}`;
     }
     return string;
   }
 
   public async getCars():Promise<[CarData]> {
-    const query = this.getQueryString([{ key: 'page', value: '1' }, { key: 'limit', value: '1' }]);
+    const response: Response = await fetch(`${this.baseURL}${this.path.garage}`);
+    const data = response.json();
+    return data;
+  }
+
+  public async getCarsFromPage(page: number):Promise<[CarData]> {
+    const query = this.getQueryString([{ key: 'page', value: `${page}` }, { key: 'limit', value: `${this.limit}` }]);
     const response: Response = await fetch(`${this.baseURL}${this.path.garage}${query}`);
     const data = response.json();
     return data;

@@ -12,18 +12,34 @@ class Garage extends Component {
 
   public static carsData: [CarData] | [];
 
+  public static pageNum: number;
+
+  public static limit: number;
+
   constructor(tag: keyof HTMLElementTagNameMap, className: string) {
     super(tag, className);
     this.api = new Api();
+    Garage.pageNum = 1;
+    Garage.limit = 7;
   }
 
   public async render(): Promise<HTMLElement> {
-    Garage.carsData = await this.api.getCars();
+    this.container.innerHTML = '';
+
     this.setCarsNumber();
+
+    Garage.carsData = await this.api.getCarsFromPage(Garage.pageNum);
 
     const garageTitle = createBlock({
       tag: 'h2',
       className: 'garage-title',
+      parentBlock: this.container,
+    });
+
+    const page = createBlock({
+      tag: 'h3',
+      className: 'garage-page',
+      innerHTML: `Page ${Garage.pageNum}`,
       parentBlock: this.container,
     });
 
@@ -33,11 +49,59 @@ class Garage extends Component {
       parentBlock: this.container,
     });
 
-    this.renderCars(carsContainer, Garage.carsData);
+    await this.renderCars(carsContainer);
 
     garageTitle.innerHTML = `Garage (${Garage.carsNumber})`;
 
+    const pageBtnsContainer = createBlock({
+      tag: 'div',
+      className: 'page-buttons',
+      parentBlock: this.container,
+    });
+
+    const pageBtnPrev = createBlock({
+      tag: 'button',
+      className: 'page-buttons__btn  btn btn_prev',
+      innerHTML: '<<',
+      parentBlock: pageBtnsContainer,
+    });
+
+    const pageBtnNext = createBlock({
+      tag: 'button',
+      className: 'page-buttons__btn btn btn_next',
+      innerHTML: '>>',
+      parentBlock: pageBtnsContainer,
+    });
+
+    pageBtnNext.addEventListener('click', () => {
+      this.moveToNextPage();
+    });
+
+    pageBtnPrev.addEventListener('click', () => {
+      this.moveToPrevPage();
+    });
+
+    if (Garage.pageNum === Math.ceil(Garage.carsNumber / Garage.limit)) {
+      pageBtnNext.disabled = true;
+    }
+
+    if (Garage.pageNum === 1) {
+      pageBtnPrev.disabled = true;
+    }
+
     return this.container;
+  }
+
+  public moveToNextPage(): void {
+    this.container.innerHTML = '';
+    Garage.pageNum += 1;
+    this.render();
+  }
+
+  public moveToPrevPage(): void {
+    this.container.innerHTML = '';
+    Garage.pageNum -= 1;
+    this.render();
   }
 
   public async updateCarsData(): Promise<void> {
@@ -45,8 +109,9 @@ class Garage extends Component {
     Garage.carsData = carsData;
   }
 
-  public setCarsNumber(): void {
-    Garage.carsNumber = Garage.carsData.length;
+  public async setCarsNumber(): Promise<void> {
+    const data = await this.api.getCars();
+    Garage.carsNumber = data.length;
   }
 
   public renderCarsNumber(): void {
@@ -60,7 +125,8 @@ class Garage extends Component {
     this.renderCarsNumber();
   }
 
-  public renderCars(container: HTMLElement, data: [CarData] | CarData[]): HTMLElement {
+  public async renderCars(container: HTMLElement): Promise<HTMLElement> {
+    const data: [CarData] | CarData[] = await this.api.getCarsFromPage(Garage.pageNum);
     data.forEach((car) => {
       const carContainer = createBlock({
         tag: 'div',
@@ -120,9 +186,11 @@ class Garage extends Component {
     });
 
     const parent = carContainerHeader.closest('.car');
+
     if (parent) {
       parent.id = `${data.id}`;
     }
+
     return container;
   }
 
@@ -179,6 +247,11 @@ class Garage extends Component {
       carsContainer.removeChild(carElement);
       this.api.removeCar(id);
       await this.rerenderCarsNumber();
+      Garage.carsData = await this.api.getCarsFromPage(Garage.pageNum);
+      if (!Garage.carsData.length) {
+        Garage.pageNum -= 1;
+      }
+      this.render();
     }
   }
 
