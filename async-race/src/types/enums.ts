@@ -7,3 +7,9 @@ export enum InputCategories {
   Create = 'create',
   Update = 'update',
 }
+
+export enum EngineStatus {
+  Start = 'started',
+  Stop = 'stopped',
+  Drive = 'drive',
+}

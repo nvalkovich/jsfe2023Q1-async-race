@@ -134,9 +134,10 @@ button:disabled {
 }
 
 .car-drive__image {
-  margin-left: 10px;
   display: flex;
   align-items: end;
+  position: absolute;
+  left: 60px;
 }
 
 .car-drive__flag {

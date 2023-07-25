@@ -1,7 +1,9 @@
 import Component from './component';
 import CarData from '../types/interfaces';
 import { createBlock, findElement } from './helpers';
+import startRace from './race';
 import Api from './api';
+import { EngineStatus } from '../types/enums';
 
 class Garage extends Component {
   public static carsNumber: number;
@@ -261,19 +263,42 @@ class Garage extends Component {
       className: 'car-drive__btns',
     });
     const carStartBtn = createBlock({
-      tag: 'div',
+      tag: 'button',
       className: 'car-drive__btn btn btn_start',
       innerHTML: 'A',
       parentBlock: carDriveBtns,
     });
     const carStopBtn = createBlock({
-      tag: 'div',
+      tag: 'button',
       className: 'car-drive__btn btn btn_stop',
       innerHTML: 'B',
       parentBlock: carDriveBtns,
     });
 
+    carStopBtn.disabled = true;
+
+    carStartBtn.addEventListener('click', this.carStartBtnHandler.bind(this));
+    carStopBtn.addEventListener('click', this.carStopBtnHandler.bind(this));
+
     return carDriveBtns;
+  }
+
+  private async carStartBtnHandler(e: Event): Promise<void> {
+    const { target } = e;
+    if (target && target instanceof HTMLElement) {
+      const id = Number(target.closest('.car')?.id);
+      const duration = await this.api.setEngineStatus(id, EngineStatus.Start);
+      startRace(id, EngineStatus.Start, duration);
+    }
+  }
+
+  private async carStopBtnHandler(e: Event): Promise<void> {
+    const { target } = e;
+    if (target && target instanceof HTMLElement) {
+      const id = Number(target.closest('.car')?.id);
+      await this.api.setEngineStatus(id, EngineStatus.Stop);
+      startRace(id, EngineStatus.Stop);
+    }
   }
 }
 

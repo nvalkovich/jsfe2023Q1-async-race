@@ -1,4 +1,5 @@
 import CarData from '../types/interfaces';
+import { EngineStatus } from '../types/enums';
 
 class Api {
   private baseURL: string;
@@ -69,6 +70,30 @@ class Api {
       method: 'DELETE',
     });
     return response.json();
+  }
+
+  public async setEngineStatus(id: number, status: EngineStatus): Promise<number> {
+    const response = await fetch(`${this.baseURL}/engine?id=${id}&status=${status}`, {
+      method: 'PATCH',
+    });
+    const data = await response.json();
+    const duration = data.distance / data.velocity;
+    return duration;
+  }
+
+  public async setDriveStatus(id: number): Promise<null | { succes: boolean; }> {
+    try {
+      const response = await fetch(`${this.baseURL}/engine?id=${id}&status=${EngineStatus.Drive}`, {
+        method: 'PATCH',
+      });
+      if (response.ok) {
+        const data = await response.json();
+        return data;
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    return null;
   }
 }
 
