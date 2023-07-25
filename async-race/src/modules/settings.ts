@@ -3,7 +3,7 @@ import { createBlock, findElement, generateCars } from './helpers';
 import { InputCategories, EngineStatus } from '../types/enums';
 import Garage from './garage';
 import Api from './api';
-import CarData from '../types/interfaces';
+import { CarData } from '../types/interfaces';
 import Race from './race';
 
 const inputFieldsCategories = Object.values(InputCategories);

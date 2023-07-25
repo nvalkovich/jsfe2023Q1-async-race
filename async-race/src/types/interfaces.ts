@@ -1,7 +1,21 @@
-interface CarData {
+export interface CarData {
   'name': string,
   'color': string,
-  'id'?: number,
+  'id': number,
 }
 
-export default CarData;
+export interface CarCreateData {
+  'name': string,
+  'color': string,
+}
+
+export interface WinnerData {
+  id: number,
+  wins: number,
+  time: number
+}
+
+export interface UpdateWinnerData {
+  wins: number,
+  time: number
+}

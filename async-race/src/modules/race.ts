@@ -2,7 +2,7 @@
 import { animate, stopAnimate } from './animation';
 import { findElement } from './helpers';
 import { EngineStatus } from '../types/enums';
-import CarData from '../types/interfaces';
+import { CarData } from '../types/interfaces';
 
 import Api from './api';
 import Win from './win';
@@ -35,9 +35,9 @@ class Race {
       const drive = await api.setDriveStatus(id);
       if (drive && !this.winnerID && id && carsOnPage) {
         this.winnerID = id;
-        const time = (duration / 1000).toFixed(2);
+        const time = Number((duration / 1000).toFixed(2));
         const winnerCar = await api.getCar(id);
-        this.win.renderWin(winnerCar.name, time);
+        this.win.renderWin(this.winnerID, winnerCar.name, time);
         carsOnPage.forEach((el) => {
           stopAnimate(el.id);
         });

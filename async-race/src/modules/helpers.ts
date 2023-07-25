@@ -1,4 +1,4 @@
-import CarData from '../types/interfaces';
+import { CarCreateData, CarData } from '../types/interfaces';
 
 import Api from './api';
 
@@ -54,10 +54,10 @@ export const generateRandomColor = ()
 const carBrands = ['Audi', 'Bentley', 'Citroen', 'Ferrari', 'Mazda', 'Opel', 'Nissan', 'Skoda', 'Volkswagen', 'Renault'];
 const carModels = ['RS Q3', 'Mustang', '300 ZX', 'AMG GT C190 ', 'Citan', 'Aspire', 'ASX', 'Canter', '200 SX', 'Almera Tino'];
 
-export const generateCars = (): CarData[] => {
+export const generateCars = (): CarCreateData[] => {
   const carsNum = 100;
   const cars: string[] = [];
-  const carsData: CarData[] = [];
+  const carsData: CarCreateData[] = [];
   while (cars.length < carsNum) {
     const randomBrandIndex = generateRandomNumber(0, carBrands.length - 1);
     const randomModelIndex = generateRandomNumber(0, carModels.length - 1);
@@ -65,7 +65,7 @@ export const generateCars = (): CarData[] => {
     const car = `${carBrands[randomBrandIndex]} ${carModels[randomModelIndex]}`;
     if (!cars.includes(car)) {
       cars.push(car);
-      const data:CarData = {
+      const data: CarCreateData = {
         name: car,
         color: generateRandomColor(),
       };

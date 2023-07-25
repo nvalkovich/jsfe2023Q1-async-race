@@ -1,4 +1,4 @@
-import CarData from '../types/interfaces';
+import { CarData, UpdateWinnerData, WinnerData } from '../types/interfaces';
 import { EngineStatus } from '../types/enums';
 
 class Api {
@@ -12,6 +12,8 @@ class Api {
     this.baseURL = 'http://127.0.0.1:3000';
     this.path = {
       garage: '/garage',
+      engine: '/engine',
+      winners: '/winners',
     };
     this.limit = 7;
   }
@@ -92,6 +94,115 @@ class Api {
       }
     } catch (err) {
       console.error(err);
+    }
+    return null;
+  }
+
+  public async getWinner(id: number): Promise<WinnerData | null> {
+    try {
+      const response = await fetch(`${this.baseURL}${this.path.winners}/${id}`, {
+        method: 'GET',
+      });
+      if (response.ok) {
+        const data = await response.json();
+        return data;
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    return null;
+  }
+
+  public async createWinner(id: number, time: number): Promise<WinnerData | null> {
+    const winner = await this.getWinner(id);
+    console.log(`${id}`, winner);
+    console.log('prevvins', winner?.wins);
+
+    const winsNumber = winner?.wins ? winner.wins + 1 : 1;
+
+    const winnerData: WinnerData = {
+      id,
+      wins: winsNumber,
+      time,
+    };
+    try {
+      const response = await fetch(`${this.baseURL}${this.path.winners}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(winnerData),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data);
+        return data;
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    return null;
+  }
+
+  public async getWinners(
+    pageNumber?: number,
+    sortType?: string,
+    sortOrder?: string,
+  ): Promise<WinnerData[] | []> {
+    let listWinners: WinnerData[] = [];
+    const typeSort = sortType || 'id';
+    const orderSort = sortOrder || 'ASC';
+    try {
+      let response: Response;
+      if (pageNumber) {
+        response = await fetch(`${this.baseURL}${this.path.winners}?_page=${pageNumber}&_limit=${this.limit}&_sort=${typeSort}&_order=${orderSort}`, {
+          method: 'GET',
+        });
+      } else {
+        response = await fetch(`${this.baseURL}${this.path.winners}`, {
+          method: 'GET',
+        });
+      }
+      if (response.ok) {
+        const responseData = await response.json();
+        listWinners = Object.keys(responseData).map((key) => {
+          const winnersData = responseData[key];
+          const winner: WinnerData = {
+            id: winnersData.id,
+            wins: winnersData.wins,
+            time: winnersData.time,
+          };
+          return winner;
+        });
+      }
+    } catch (error) {
+      console.error(`Can't get winners: ${error}`);
+    }
+    return listWinners;
+  }
+
+  public async updateWinner(oldData: WinnerData, time: number): Promise<WinnerData | null> {
+    try {
+      const { id, wins } = oldData;
+      const bestTime = oldData.time > time ? oldData.time : time;
+      const newData: UpdateWinnerData = {
+        wins: wins + 1,
+        time: bestTime,
+      };
+      const response = await fetch(`${this.baseURL}${this.path.winners}/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newData),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        return data;
+      }
+    } catch (error) {
+      console.error(`Can't create winner: ${error}`);
     }
     return null;
   }

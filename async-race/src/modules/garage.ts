@@ -1,5 +1,5 @@
 import Component from './component';
-import CarData from '../types/interfaces';
+import { CarData } from '../types/interfaces';
 import { createBlock, findElement } from './helpers';
 import Api from './api';
 import { EngineStatus } from '../types/enums';

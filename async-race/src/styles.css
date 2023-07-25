@@ -167,14 +167,29 @@ button:disabled {
   font-size: 18px;
   background: rgba(40, 34, 34, 0.971);
   position: absolute;
-  top: 45%;
-  left: 50%;
-  transform: translate(-57%, -45%);
+  top: 5%;
+  left: 45%;
   color:#ffffff;
 }
+
 .win-message__text{
   text-align: center;
   width: 95%;
   padding-left: 10px;
 }
 
+.winners-table-head-row__data{
+  border: 1px solid #ffffff;
+  padding: 7px;
+}
+
+td {
+  border: 1px solid #ffffff;
+  padding: 10px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.table-data_image {
+  padding: 10px 5px 0px 5px;
+}

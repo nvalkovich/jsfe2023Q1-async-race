@@ -1,7 +1,14 @@
+import Api from './api';
 import { findElement, createBlock } from './helpers';
 
 class Win {
-  public renderWin(name: string, time: string): void {
+  private api: Api;
+
+  constructor() {
+    this.api = new Api();
+  }
+
+  public async renderWin(id: number, name: string, time: number): Promise<void> {
     const body: HTMLBodyElement = findElement('body');
     const message = createBlock({
       tag: 'div',
@@ -18,6 +25,18 @@ class Win {
     setTimeout(() => {
       body.removeChild(message);
     }, 3000);
+
+    const winner = await this.api.getWinner(id);
+    if (winner) {
+      this.api.updateWinner(winner, time);
+    } else {
+      this.api.createWinner(id, time);
+    }
+
+    const winners = await this.api.getWinners();
+    console.log(winners);
+
+    const renderWinnersTableHead: HTMLBodyElement = findElement('body');
   }
 }
 
