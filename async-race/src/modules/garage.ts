@@ -287,8 +287,17 @@ class Garage extends Component {
     const { target } = e;
     if (target && target instanceof HTMLElement) {
       const id = Number(target.closest('.car')?.id);
+      this.race(id, EngineStatus.Start);
+    }
+  }
+
+  public async race(id: number, status: EngineStatus): Promise<void> {
+    if (status === EngineStatus.Start) {
       const duration = await this.api.setEngineStatus(id, EngineStatus.Start);
       startRace(id, EngineStatus.Start, duration);
+    } else if (status === EngineStatus.Stop) {
+      await this.api.setEngineStatus(id, EngineStatus.Stop);
+      startRace(id, EngineStatus.Stop);
     }
   }
 
@@ -296,8 +305,7 @@ class Garage extends Component {
     const { target } = e;
     if (target && target instanceof HTMLElement) {
       const id = Number(target.closest('.car')?.id);
-      await this.api.setEngineStatus(id, EngineStatus.Stop);
-      startRace(id, EngineStatus.Stop);
+      this.race(id, EngineStatus.Stop);
     }
   }
 }

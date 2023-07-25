@@ -72,7 +72,7 @@ class Api {
     return response.json();
   }
 
-  public async setEngineStatus(id: number, status: EngineStatus): Promise<number> {
+  public async setEngineStatus(id: number | undefined, status: EngineStatus): Promise<number> {
     const response = await fetch(`${this.baseURL}/engine?id=${id}&status=${status}`, {
       method: 'PATCH',
     });
@@ -81,7 +81,7 @@ class Api {
     return duration;
   }
 
-  public async setDriveStatus(id: number): Promise<null | { succes: boolean; }> {
+  public async setDriveStatus(id: number | undefined): Promise<null | { succes: boolean; }> {
     try {
       const response = await fetch(`${this.baseURL}/engine?id=${id}&status=${EngineStatus.Drive}`, {
         method: 'PATCH',

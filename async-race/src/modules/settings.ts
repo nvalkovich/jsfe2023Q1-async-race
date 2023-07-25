@@ -1,9 +1,11 @@
 import Component from './component';
 import { createBlock, findElement, generateCars } from './helpers';
-import { InputCategories } from '../types/enums';
+import { InputCategories, EngineStatus } from '../types/enums';
 import Garage from './garage';
 import Api from './api';
 import CarData from '../types/interfaces';
+import { animate, stopAnimate } from './animation';
+import startRace from './race';
 
 const inputFieldsCategories = Object.values(InputCategories);
 
@@ -93,8 +95,48 @@ class Settings extends Component {
       parentBlock: btnsControlContainer,
     });
     btnGenerate.addEventListener('click', this.btnGenerateHandler.bind(this));
+
+    btnRace.addEventListener('click', this.btnControlRaceHandler.bind(this));
+    btnReset.addEventListener('click', this.btnControlRaceHandler.bind(this));
     this.container.append(btnsControlContainer);
   }
+
+  private async btnControlRaceHandler(e: Event): Promise<void> {
+    const { target } = e;
+    if (target && target instanceof HTMLElement) {
+      const cars = await this.api.getCarsFromPage(Garage.pageNum);
+      let status: EngineStatus;
+      if (target.innerHTML === 'race') {
+        status = EngineStatus.Start;
+
+        const carsData = await Promise.all(
+          cars.map(async (car): Promise<
+          { id: number | undefined,
+            duration: number,
+          }> => ({
+            id: car.id,
+            duration: await this.api.setEngineStatus(car.id, status),
+          })),
+        );
+
+        carsData.forEach((car) => {
+          startRace(car.id, EngineStatus.Start, car.duration);
+        });
+      } else if (target.innerHTML === 'reset') {
+        status = EngineStatus.Stop;
+
+        cars.forEach((car) => {
+          startRace(car.id, EngineStatus.Stop);
+        });
+      }
+    }
+  }
+
+  // private async raceCars(status: EngineStatus) {
+  //   const race = await Promise.all(
+  //     allCars.map((car) => this.garage.race(car.id as number, status)),
+  //   );
+  // }
 
   private async btnGenerateHandler(e: Event): Promise<void> {
     const carsData = generateCars();

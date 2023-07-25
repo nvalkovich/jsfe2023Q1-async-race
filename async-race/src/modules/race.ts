@@ -8,7 +8,7 @@ import Api from './api';
 const api = new Api();
 
 const startRace = async (
-  id: number,
+  id: number | undefined,
   status: EngineStatus,
   duration?: number,
 ): Promise<void> => {
