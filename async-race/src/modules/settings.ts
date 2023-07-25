@@ -4,8 +4,7 @@ import { InputCategories, EngineStatus } from '../types/enums';
 import Garage from './garage';
 import Api from './api';
 import CarData from '../types/interfaces';
-import { animate, stopAnimate } from './animation';
-import startRace from './race';
+import Race from './race';
 
 const inputFieldsCategories = Object.values(InputCategories);
 
@@ -118,25 +117,19 @@ class Settings extends Component {
             duration: await this.api.setEngineStatus(car.id, status),
           })),
         );
-
+        const race = new Race();
         carsData.forEach((car) => {
-          startRace(car.id, EngineStatus.Start, car.duration);
+          race.startRace(car.id, EngineStatus.Start, car.duration, cars);
         });
       } else if (target.innerHTML === 'reset') {
         status = EngineStatus.Stop;
-
+        const race = new Race();
         cars.forEach((car) => {
-          startRace(car.id, EngineStatus.Stop);
+          race.startRace(car.id, EngineStatus.Stop);
         });
       }
     }
   }
-
-  // private async raceCars(status: EngineStatus) {
-  //   const race = await Promise.all(
-  //     allCars.map((car) => this.garage.race(car.id as number, status)),
-  //   );
-  // }
 
   private async btnGenerateHandler(e: Event): Promise<void> {
     const carsData = generateCars();

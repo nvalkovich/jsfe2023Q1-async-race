@@ -5,6 +5,7 @@
 body {
   background-color: #3a3434;
   color: #ffffff;
+  position: relative;
 }
 
 a {
@@ -160,3 +161,20 @@ button:disabled {
 .page-buttons__btn {
   padding: 6px 6px 4px 6px;
 }
+
+.win-message{
+  text-align: center;
+  font-size: 18px;
+  background: rgba(40, 34, 34, 0.971);
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-57%, -45%);
+  color:#ffffff;
+}
+.win-message__text{
+  text-align: center;
+  width: 95%;
+  padding-left: 10px;
+}
+

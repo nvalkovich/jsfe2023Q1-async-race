@@ -1,9 +1,9 @@
 import Component from './component';
 import CarData from '../types/interfaces';
 import { createBlock, findElement } from './helpers';
-import startRace from './race';
 import Api from './api';
 import { EngineStatus } from '../types/enums';
+import Race from './race';
 
 class Garage extends Component {
   public static carsNumber: number;
@@ -292,12 +292,13 @@ class Garage extends Component {
   }
 
   public async race(id: number, status: EngineStatus): Promise<void> {
+    const race = new Race();
     if (status === EngineStatus.Start) {
       const duration = await this.api.setEngineStatus(id, EngineStatus.Start);
-      startRace(id, EngineStatus.Start, duration);
+      race.startRace(id, EngineStatus.Start, duration);
     } else if (status === EngineStatus.Stop) {
       await this.api.setEngineStatus(id, EngineStatus.Stop);
-      startRace(id, EngineStatus.Stop);
+      race.startRace(id, EngineStatus.Stop);
     }
   }
 
