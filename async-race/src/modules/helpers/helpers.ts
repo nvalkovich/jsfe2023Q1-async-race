@@ -1,6 +1,6 @@
-import { CarCreateData, CarData } from '../types/interfaces';
+import { CarCreateData, CarData } from '../../types/interfaces';
 
-import Api from './api';
+import Api from '../api/api';
 
 const api = new Api();
 

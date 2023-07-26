@@ -1,9 +1,9 @@
-import Component from './component';
-import { createBlock, findElement, generateCars } from './helpers';
-import { InputCategories, EngineStatus } from '../types/enums';
+import Component from '../../templates/component';
+import { createBlock, findElement, generateCars } from '../../helpers/helpers';
+import { InputCategories, EngineStatus } from '../../../types/enums';
 import Garage from './garage';
-import Api from './api';
-import { CarData } from '../types/interfaces';
+import Api from '../../api/api';
+import { CarData } from '../../../types/interfaces';
 import Race from './race';
 
 const inputFieldsCategories = Object.values(InputCategories);

@@ -1,5 +1,5 @@
-import { CarData, UpdateWinnerData, WinnerData } from '../types/interfaces';
-import { EngineStatus } from '../types/enums';
+import { CarData, UpdateWinnerData, WinnerData } from '../../types/interfaces';
+import { EngineStatus } from '../../types/enums';
 
 class Api {
   private baseURL: string;

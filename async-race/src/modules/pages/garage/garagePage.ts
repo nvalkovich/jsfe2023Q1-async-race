@@ -1,6 +1,6 @@
-import Page from '../page';
-import Settings from '../../settings';
-import Garage from '../../garage';
+import Page from '../../templates/page';
+import Settings from './settings';
+import Garage from './garage';
 
 class GaragePage extends Page {
   private cars = new Garage('div', 'cars');

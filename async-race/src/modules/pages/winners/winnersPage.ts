@@ -1,5 +1,5 @@
-import Page from '../page';
-import WinnersTable from '../../winnersTable';
+import Page from '../../templates/page';
+import WinnersTable from './winnersTable';
 
 class WinnersPage extends Page {
   private winnersTable = new WinnersTable('div', 'garage');

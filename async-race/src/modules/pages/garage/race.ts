@@ -1,10 +1,10 @@
 // eslint-disable-next-line import/no-cycle
 import { animate, stopAnimate } from './animation';
-import { findElement } from './helpers';
-import { EngineStatus } from '../types/enums';
-import { CarData } from '../types/interfaces';
+import { findElement } from '../../helpers/helpers';
+import { EngineStatus } from '../../../types/enums';
+import { CarData } from '../../../types/interfaces';
 
-import Api from './api';
+import Api from '../../api/api';
 import Win from './win';
 
 const api = new Api();
