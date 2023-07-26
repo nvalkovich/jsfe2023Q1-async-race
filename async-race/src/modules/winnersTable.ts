@@ -86,8 +86,6 @@ class WinnersTable extends Component {
   }
 
   public async renderWinnersTableData(table: HTMLElement):Promise<void> {
-    console.log(WinnersTable.winnersData);
-
     const data = WinnersTable.winnersData;
 
     data.forEach(async (winner, index) => {

@@ -139,6 +139,7 @@ button:disabled {
   align-items: end;
   position: absolute;
   left: 60px;
+  z-index: 1;
 }
 
 .car-drive__flag {
@@ -150,6 +151,7 @@ button:disabled {
   position: absolute;
   right: 100px;
   bottom: 5%;
+  z-index: 2;
 }
 
 .page-buttons {
@@ -164,11 +166,12 @@ button:disabled {
 
 .win-message{
   text-align: center;
-  font-size: 18px;
   background: rgba(40, 34, 34, 0.971);
   position: absolute;
-  top: 5%;
-  left: 45%;
+  top: 55%;
+  left: 48%;
+  margin-right: -55%;
+  transform: translate(-50%, -50%);
   color:#ffffff;
 }
 

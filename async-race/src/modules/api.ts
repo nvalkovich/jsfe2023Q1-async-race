@@ -185,7 +185,7 @@ class Api {
   public async updateWinner(oldData: WinnerData, time: number): Promise<WinnerData | null> {
     try {
       const { id, wins } = oldData;
-      const bestTime = oldData.time > time ? oldData.time : time;
+      const bestTime = oldData.time < time ? oldData.time : time;
       const newData: UpdateWinnerData = {
         wins: wins + 1,
         time: bestTime,
@@ -203,6 +203,19 @@ class Api {
       }
     } catch (error) {
       console.error(`Can't create winner: ${error}`);
+    }
+    return null;
+  }
+
+  public async removeWinner(id: number): Promise<object | null> {
+    try {
+      const response = await fetch(`${this.baseURL}${this.path.winners}/${id}`, {
+        method: 'DELETE',
+      });
+      const data = await response.json();
+      return data;
+    } catch (err) {
+      console.error(err);
     }
     return null;
   }

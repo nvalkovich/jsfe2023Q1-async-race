@@ -248,6 +248,7 @@ class Garage extends Component {
       const carElement: HTMLDivElement = findElement(`[id='${id}']`);
       carsContainer.removeChild(carElement);
       this.api.removeCar(id);
+      this.api.removeWinner(id);
       await this.rerenderCarsNumber();
       Garage.carsData = await this.api.getCarsFromPage(Garage.pageNum);
       if (!Garage.carsData.length) {

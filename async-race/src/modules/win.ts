@@ -18,7 +18,7 @@ class Win {
     const messageText = createBlock({
       tag: 'h3',
       className: 'win-message__text',
-      innerHTML: `${name} won the race (${time}s)`,
+      innerHTML: `${name} is winner! (${time}s)`,
       parentBlock: message,
     });
 
@@ -32,11 +32,6 @@ class Win {
     } else {
       this.api.createWinner(id, time);
     }
-
-    const winners = await this.api.getWinners();
-    console.log(winners);
-
-    const renderWinnersTableHead: HTMLBodyElement = findElement('body');
   }
 }
 
