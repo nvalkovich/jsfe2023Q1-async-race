@@ -1,7 +1,7 @@
-import Component from './component';
-import { CarData, WinnerData } from '../types/interfaces';
-import { createBlock, findElement } from './helpers';
-import Api from './api';
+import Component from '../../templates/component';
+import { CarData, WinnerData } from '../../../types/interfaces';
+import { createBlock, findElement } from '../../helpers/helpers';
+import Api from '../../api/api';
 
 class WinnersTable extends Component {
   public static winnersNumber: number;

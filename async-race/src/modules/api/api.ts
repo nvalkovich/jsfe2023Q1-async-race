@@ -1,5 +1,5 @@
-import { CarData, UpdateWinnerData, WinnerData } from '../types/interfaces';
-import { EngineStatus } from '../types/enums';
+import { CarData, UpdateWinnerData, WinnerData } from '../../types/interfaces';
+import { EngineStatus } from '../../types/enums';
 
 class Api {
   private baseURL: string;
@@ -115,8 +115,6 @@ class Api {
 
   public async createWinner(id: number, time: number): Promise<WinnerData | null> {
     const winner = await this.getWinner(id);
-    console.log(`${id}`, winner);
-    console.log('prevvins', winner?.wins);
 
     const winsNumber = winner?.wins ? winner.wins + 1 : 1;
 
@@ -136,7 +134,6 @@ class Api {
 
       if (response.ok) {
         const data = await response.json();
-        console.log(data);
         return data;
       }
     } catch (err) {

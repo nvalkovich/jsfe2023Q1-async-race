@@ -1,9 +1,9 @@
-import Component from './component';
-import { createBlock, findElement, generateCars } from './helpers';
-import { InputCategories, EngineStatus } from '../types/enums';
+import Component from '../../templates/component';
+import { createBlock, findElement, generateCars } from '../../helpers/helpers';
+import { InputCategories, EngineStatus } from '../../../types/enums';
 import Garage from './garage';
-import Api from './api';
-import { CarData } from '../types/interfaces';
+import Api from '../../api/api';
+import { CarData } from '../../../types/interfaces';
 import Race from './race';
 
 const inputFieldsCategories = Object.values(InputCategories);
@@ -132,12 +132,10 @@ class Settings extends Component {
   }
 
   private async btnGenerateHandler(e: Event): Promise<void> {
-    const carsData = generateCars();
-    const carsContainer: HTMLDivElement = findElement('.cars-container');
     const cars = await this.api.getCars();
     const garageElement = findElement('.cars');
     garageElement.innerHTML = '';
-    Garage.pageNum = Math.ceil(cars.length / 7);
+    Garage.pageNum = Math.ceil(cars.length / Garage.limit);
     const newGarage = await this.garage.render();
     garageElement.append(newGarage);
   }

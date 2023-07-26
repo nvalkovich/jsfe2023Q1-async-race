@@ -1,10 +1,9 @@
-// eslint-disable-next-line import/no-cycle
 import { animate, stopAnimate } from './animation';
-import { findElement } from './helpers';
-import { EngineStatus } from '../types/enums';
-import { CarData } from '../types/interfaces';
+import { findElement } from '../../helpers/helpers';
+import { EngineStatus } from '../../../types/enums';
+import { CarData } from '../../../types/interfaces';
 
-import Api from './api';
+import Api from '../../api/api';
 import Win from './win';
 
 const api = new Api();
@@ -28,11 +27,14 @@ class Race {
     const car: HTMLDivElement = findElement(`[id='${id}'] .car-drive__image`);
     const carStartBtn: HTMLButtonElement = findElement(`[id='${id}'] .btn_start`);
     const carStopBtn: HTMLButtonElement = findElement(`[id='${id}'] .btn_stop`);
+
     if (status === EngineStatus.Start && duration) {
       carStartBtn.disabled = true;
       carStopBtn.disabled = false;
+
       animate(duration, id, car);
       const drive = await api.setDriveStatus(id);
+
       if (drive && !this.winnerID && id && carsOnPage) {
         this.winnerID = id;
         const time = Number((duration / 1000).toFixed(2));

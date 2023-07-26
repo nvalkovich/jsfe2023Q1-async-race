@@ -1,8 +1,8 @@
 import GaragePage from './pages/garage/garagePage';
 import WinnersPage from './pages/winners/winnersPage';
-import Page from './pages/page';
+import Page from './templates/page';
 import { PageIds } from '../types/enums';
-import HeaderButtons from './headerBtns';
+import HeaderButtons from './pages/garage/headerBtns';
 
 class App {
   private static container: HTMLElement = document.body;

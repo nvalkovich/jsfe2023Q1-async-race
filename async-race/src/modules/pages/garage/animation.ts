@@ -1,4 +1,4 @@
-import { findElement } from './helpers';
+import { findElement } from '../../helpers/helpers';
 
 const animationId: { [key: string]: number } = {};
 

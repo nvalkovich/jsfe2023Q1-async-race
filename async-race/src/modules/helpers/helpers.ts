@@ -1,6 +1,6 @@
-import { CarCreateData, CarData } from '../types/interfaces';
+import { CarCreateData, CarData } from '../../types/interfaces';
 
-import Api from './api';
+import Api from '../api/api';
 
 const api = new Api();
 
@@ -61,7 +61,7 @@ export const generateCars = (): CarCreateData[] => {
   while (cars.length < carsNum) {
     const randomBrandIndex = generateRandomNumber(0, carBrands.length - 1);
     const randomModelIndex = generateRandomNumber(0, carModels.length - 1);
-    console.log(randomBrandIndex, randomModelIndex);
+
     const car = `${carBrands[randomBrandIndex]} ${carModels[randomModelIndex]}`;
     if (!cars.includes(car)) {
       cars.push(car);

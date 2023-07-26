@@ -1,8 +1,8 @@
-import Component from './component';
-import { CarData } from '../types/interfaces';
-import { createBlock, findElement } from './helpers';
-import Api from './api';
-import { EngineStatus } from '../types/enums';
+import Component from '../../templates/component';
+import { CarData } from '../../../types/interfaces';
+import { createBlock, findElement } from '../../helpers/helpers';
+import Api from '../../api/api';
+import { EngineStatus } from '../../../types/enums';
 import Race from './race';
 
 class Garage extends Component {

@@ -1,5 +1,5 @@
-import Api from './api';
-import { findElement, createBlock } from './helpers';
+import Api from '../../api/api';
+import { findElement, createBlock } from '../../helpers/helpers';
 
 class Win {
   private api: Api;
@@ -10,10 +10,15 @@ class Win {
 
   public async renderWin(id: number, name: string, time: number): Promise<void> {
     const body: HTMLBodyElement = findElement('body');
+    const messageContainer = createBlock({
+      tag: 'div',
+      className: 'win-message-container',
+      parentBlock: body,
+    });
     const message = createBlock({
       tag: 'div',
       className: 'win-message',
-      parentBlock: body,
+      parentBlock: messageContainer,
     });
     const messageText = createBlock({
       tag: 'h3',
@@ -23,7 +28,7 @@ class Win {
     });
 
     setTimeout(() => {
-      body.removeChild(message);
+      body.removeChild(messageContainer);
     }, 3000);
 
     const winner = await this.api.getWinner(id);
