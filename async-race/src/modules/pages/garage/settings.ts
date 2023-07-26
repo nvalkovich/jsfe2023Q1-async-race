@@ -132,10 +132,11 @@ class Settings extends Component {
   }
 
   private async btnGenerateHandler(e: Event): Promise<void> {
+    generateCars();
     const cars = await this.api.getCars();
     const garageElement = findElement('.cars');
     garageElement.innerHTML = '';
-    Garage.pageNum = Math.ceil(cars.length / Garage.limit);
+    Garage.pageNum = Math.ceil(cars.length / 7);
     const newGarage = await this.garage.render();
     garageElement.append(newGarage);
   }
