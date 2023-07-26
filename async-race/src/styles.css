@@ -196,3 +196,22 @@ td {
 .table-data_image {
   padding: 10px 5px 0px 5px;
 }
+
+.sort-container {
+  padding-top: 10px;
+}
+
+.sort-btns-container {
+  display: flex;
+  flex-direction: row;
+  padding-top: 10px;
+}
+
+.sort-btns-container__text {
+  margin-right: 10px;
+}
+
+.sort-btns-container__btn {
+  font-size: 10px;
+  padding: 2px 3px 1px 3px;
+}

@@ -40,7 +40,8 @@ class WinnersTable extends Component {
   }
 
   public renderWinnersTable():HTMLElement {
-    console.log(this.container);
+    this.container.innerHTML = '';
+    console.log(WinnersTable.winnersData);
 
     const winnersTableContainer = createBlock({
       tag: 'div',
@@ -61,11 +62,70 @@ class WinnersTable extends Component {
 
     this.renderWinnersTableHead(winnersTable);
     this.renderWinnersTableData(winnersTable);
+
+    const sortContainer = createBlock({
+      tag: 'div',
+      className: 'winners-table-container__sort-container sort--container',
+      parentBlock: winnersTableContainer,
+    });
+
+    const sortByWins = this.renderSortBtns('wins');
+    const sortByTime = this.renderSortBtns('time');
+    sortContainer.append(sortByWins);
+    sortContainer.append(sortByTime);
+
     return this.container;
   }
 
+  private renderSortBtns(category: string): HTMLElement {
+    const sortBtnsContainer = createBlock({
+      tag: 'div',
+      className: `winners-table-container__sort-container sort-btns-container sort-btns-container_${category}`,
+    });
+    const sortContainerText = createBlock({
+      tag: 'div',
+      className: 'sort-btns-container__text',
+      innerHTML: `Sort by ${category}: `,
+      parentBlock: sortBtnsContainer,
+    });
+    const btnSortASC = createBlock({
+      tag: 'button',
+      className: 'sort-btns-container__btn btn',
+      innerHTML: 'ASC',
+      parentBlock: sortContainerText,
+    });
+    const btnSortDESC = createBlock({
+      tag: 'button',
+      className: 'sort-btns-container__btn btn',
+      innerHTML: 'DESC',
+      parentBlock: sortContainerText,
+    });
+
+    btnSortASC.addEventListener('click', this.btnSortHandler.bind(this));
+    btnSortDESC.addEventListener('click', this.btnSortHandler.bind(this));
+
+    return sortBtnsContainer;
+  }
+
+  public async btnSortHandler(e: Event):Promise<void> {
+    const { target } = e;
+    if (target && target instanceof HTMLElement) {
+      let category:string;
+      if (target.closest('.sort-btns-container')?.classList.contains('sort-btns-container_time')) {
+        category = 'time';
+      } else {
+        category = 'wins';
+      }
+      const order = target.innerHTML;
+      console.log('asctime');
+      WinnersTable.winnersData = await this.api.getWinners(WinnersTable.pageNum, category, order);
+      console.log(WinnersTable.winnersData);
+      this.renderWinnersTable();
+    }
+  }
+
   private winnersTableCategories = [
-    'Number', 'Car', 'Name', 'Wins', 'Best time(seconds)',
+    'Number', 'Car', 'Name', 'Wins', 'Best time',
   ];
 
   public renderWinnersTableHead(table: HTMLElement):void {
@@ -141,7 +201,13 @@ class WinnersTable extends Component {
         innerHTML: `${winner.time}`,
         parentBlock: winnersTableDataRow,
       });
+
+      winnersTableDataTime.addEventListener('click', this.sortWinners);
     });
+  }
+
+  public sortWinners():void {
+    console.log('sort');
   }
 }
 
