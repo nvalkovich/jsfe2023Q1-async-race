@@ -164,14 +164,20 @@ button:disabled {
   padding: 6px 6px 4px 6px;
 }
 
+.win-message-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .win-message{
   text-align: center;
   background: rgba(40, 34, 34, 0.971);
-  position: absolute;
-  top: 55%;
-  left: 48%;
-  margin-right: -55%;
-  transform: translate(-50%, -50%);
   color:#ffffff;
 }
 
