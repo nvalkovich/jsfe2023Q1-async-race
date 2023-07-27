@@ -231,7 +231,7 @@ class Garage extends Component {
 
     const selectedBtnID = Number(getLocalStorage('selectedCarID'));
     if (selectedBtnID && selectedBtnID === id) {
-      carSelectBtn.style.color = '#1b6124';
+      carSelectBtn.classList.remove('selected');
     }
 
     return carHeaderBtns;
@@ -240,9 +240,13 @@ class Garage extends Component {
   private async btnSelectHandler(e: Event): Promise<void> {
     const { target } = e;
     if (target && target instanceof HTMLButtonElement) {
-      const id = Number(target.closest('.car')?.id);
-      target.style.color = '#00ff00';
+      if (document.querySelector('.selected')) {
+        const selectedElement = findElement('.selected');
+        selectedElement.classList.remove('selected');
+      }
+      target.classList.add('selected');
 
+      const id = Number(target.closest('.car')?.id);
       const carData = await this.api.getCar(id);
 
       const inputNameUpdate: HTMLInputElement = findElement('.input-text_update');
