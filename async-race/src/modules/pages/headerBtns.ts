@@ -1,6 +1,6 @@
-import { PageIds } from '../../../types/enums';
-import Component from '../../templates/component';
-import { createBlock } from '../../helpers/helpers';
+import { PageIds } from '../../types/enums';
+import Component from '../templates/component';
+import { createBlock } from '../helpers/helpers';
 
 const buttons = [
   {
@@ -18,13 +18,18 @@ class HeaderButtons extends Component {
     const headerBtnsContainer = document.createElement('div');
     headerBtnsContainer.className = 'header__header-btns header-btns';
     buttons.forEach((button) => {
-      const buttonHTML = createBlock({
-        tag: 'a',
-        className: 'header-btns__btn btn',
-        innerHTML: button.text,
+      const headerButton = createBlock({
+        tag: 'button',
+        className: 'header-btns__btn btn btn',
         parentBlock: headerBtnsContainer,
       });
-      buttonHTML.href = `#${button.id}`;
+      const buttonLink = createBlock({
+        tag: 'a',
+        className: `header-btns__btn btn__link btn__link_${button.text}`,
+        innerHTML: button.text,
+        parentBlock: headerButton,
+      });
+      buttonLink.href = `#${button.id}`;
     });
     this.container.append(headerBtnsContainer);
     return this.container;

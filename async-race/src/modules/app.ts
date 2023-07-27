@@ -2,7 +2,7 @@ import GaragePage from './pages/garage/garagePage';
 import WinnersPage from './pages/winners/winnersPage';
 import Page from './templates/page';
 import { PageIds } from '../types/enums';
-import HeaderButtons from './pages/garage/headerBtns';
+import HeaderButtons from './pages/headerBtns';
 
 class App {
   private static container: HTMLElement = document.body;

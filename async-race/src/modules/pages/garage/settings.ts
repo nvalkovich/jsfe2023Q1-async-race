@@ -1,10 +1,16 @@
 import Component from '../../templates/component';
-import { createBlock, findElement, generateCars } from '../../helpers/helpers';
+import {
+  createBlock, findElement, generateCars,
+} from '../../helpers/helpers';
 import { InputCategories, EngineStatus } from '../../../types/enums';
 import Garage from './garage';
 import Api from '../../api/api';
 import { CarData } from '../../../types/interfaces';
 import Race from './race';
+import {
+  getLocalStorage, removeLocalStorage, setLocalStorage,
+} from '../../../state/localstorage';
+import { disableBtnsForRace, removeCreateState, removeSelectedState } from '../../../state/state';
 
 const inputFieldsCategories = Object.values(InputCategories);
 
@@ -37,18 +43,29 @@ class Settings extends Component {
         className: `input-field input-field_${category}`,
         parentBlock: inputFieldsContainer,
       });
+
+      inputField.id = category;
+
       const inputText = createBlock({
         tag: 'input',
         className: `input input-text input-text_${category}`,
         parentBlock: inputField,
       });
+
       inputText.type = 'text';
+      inputText.value = getLocalStorage(`${category}InputText`) || '';
+      inputText.addEventListener('input', this.changeInputHandler);
+
       const inputColorPicker = createBlock({
         tag: 'input',
         className: `input input-color-picker input-color-picker_${category}`,
         parentBlock: inputField,
       });
+
       inputColorPicker.type = 'color';
+      inputColorPicker.value = getLocalStorage(`${category}InputColor`) || '';
+      inputColorPicker.addEventListener('input', this.changeInputHandler);
+
       const inputBtn = createBlock({
         tag: 'button',
         className: `input-container__btn btn btn_${category}`,
@@ -56,7 +73,9 @@ class Settings extends Component {
         parentBlock: inputField,
       });
 
-      if (category === InputCategories.Update) {
+      const selectedCar = getLocalStorage('selectedCarID');
+
+      if (category === InputCategories.Update && !selectedCar) {
         inputText.disabled = true;
         inputColorPicker.disabled = true;
         inputBtn.disabled = true;
@@ -68,6 +87,18 @@ class Settings extends Component {
     });
   }
 
+  private changeInputHandler(e: Event): void {
+    const { target } = e;
+    if (target && target instanceof HTMLInputElement) {
+      const category = target.closest('.input-field')?.id;
+      if (target.classList.contains('input-text')) {
+        setLocalStorage(`${category}InputText`, target.value);
+      } else if (target.classList.contains('input-color-picker')) {
+        setLocalStorage(`${category}InputColor`, target.value);
+      }
+    }
+  }
+
   private renderCarControlBtns():void {
     const btnsControlContainer = createBlock({
       tag: 'div',
@@ -76,19 +107,19 @@ class Settings extends Component {
 
     const carControlBtnsCategories = ['race', 'reset', 'generate'];
     const btnRace = createBlock({
-      tag: 'div',
+      tag: 'button',
       className: 'control-btns-container__btn btn btn_race',
       innerHTML: 'race',
       parentBlock: btnsControlContainer,
     });
     const btnReset = createBlock({
-      tag: 'div',
+      tag: 'button',
       className: 'control-btns-container__btn btn btn_reset',
       innerHTML: 'reset',
       parentBlock: btnsControlContainer,
     });
     const btnGenerate = createBlock({
-      tag: 'div',
+      tag: 'button',
       className: 'control-btns-container__btn btn btn_generate',
       innerHTML: 'generate',
       parentBlock: btnsControlContainer,
@@ -104,8 +135,11 @@ class Settings extends Component {
     const { target } = e;
     if (target && target instanceof HTMLElement) {
       const cars = await this.api.getCarsFromPage(Garage.pageNum);
+
       let status: EngineStatus;
       if (target.innerHTML === 'race') {
+        removeLocalStorage('stoppedCars');
+        disableBtnsForRace();
         status = EngineStatus.Start;
 
         const carsData = await Promise.all(
@@ -136,7 +170,7 @@ class Settings extends Component {
     const cars = await this.api.getCars();
     const garageElement = findElement('.cars');
     garageElement.innerHTML = '';
-    Garage.pageNum = Math.ceil(cars.length / 7);
+    Garage.pageNum = Math.ceil(cars.length / Garage.limit);
     const newGarage = await this.garage.render();
     garageElement.append(newGarage);
   }
@@ -145,7 +179,7 @@ class Settings extends Component {
     const carsContainer: HTMLDivElement = findElement('.cars-container');
 
     const { target } = e;
-    if (target && target instanceof HTMLElement) {
+    if (target && target instanceof HTMLButtonElement) {
       const category = target.innerHTML;
       const inputName: HTMLInputElement = findElement(`.input-text_${category}`);
 
@@ -170,18 +204,26 @@ class Settings extends Component {
         await this.garage.rerenderCarsNumber();
         const garageElement = findElement('.cars');
         garageElement.innerHTML = '';
-        Garage.pageNum = Math.ceil(cars.length / 7);
+        Garage.pageNum = Math.ceil(cars.length / Garage.limit);
         const newGarage = await this.garage.render();
         garageElement.append(newGarage);
+        removeCreateState();
       } else {
-        const id = Garage.selectedCarID;
-        newCar = await this.api.updateCar(id, newCarData);
-        carContainer = findElement(`[id='${id}']`);
-        carContainer.innerHTML = '';
-        inputName.disabled = true;
-        inputColorPicker.disabled = true;
-        inputBtn.disabled = true;
-        this.garage.renderCar(newCar, carContainer);
+        const id = getLocalStorage('selectedCarID') ? Number(getLocalStorage('selectedCarID')) : Garage.selectedCarID;
+        if (document.querySelector(`[id='${id}']`)) {
+          newCar = await this.api.updateCar(id, newCarData);
+          carContainer = findElement(`[id='${id}']`);
+          carContainer.innerHTML = '';
+          this.garage.renderCar(newCar, carContainer);
+          const selectBtn: HTMLButtonElement = findElement(`[id='${id}'] .btn_select`);
+          selectBtn.style.color = '#ffffff';
+        }
+        removeSelectedState();
+        const inputNameUpdate: HTMLInputElement = findElement('.input-text_update');
+        const inputColorPickerUpdate: HTMLInputElement = findElement('.input-color-picker_update');
+        inputNameUpdate.disabled = true;
+        inputColorPickerUpdate.disabled = true;
+        target.disabled = true;
       }
       inputName.value = '';
       inputColorPicker.value = '';

@@ -2,7 +2,7 @@ import Page from '../../templates/page';
 import WinnersTable from './winnersTable';
 
 class WinnersPage extends Page {
-  private winnersTable = new WinnersTable('div', 'garage');
+  private winnersTable = new WinnersTable('div', 'winners');
 
   public render():HTMLElement {
     this.renderWinnersTableContainer();

@@ -4,7 +4,9 @@ import { EngineStatus } from '../../types/enums';
 class Api {
   private baseURL: string;
 
-  private limit: number;
+  public static carsLimit = 7;
+
+  public static winnersLimit = 10;
 
   private path:{ [key: string]: string };
 
@@ -15,7 +17,6 @@ class Api {
       engine: '/engine',
       winners: '/winners',
     };
-    this.limit = 7;
   }
 
   public async createCar(data: CarData | object = {}):Promise<[CarData]> {
@@ -45,7 +46,7 @@ class Api {
   }
 
   public async getCarsFromPage(page: number):Promise<[CarData]> {
-    const query = this.getQueryString([{ key: 'page', value: `${page}` }, { key: 'limit', value: `${this.limit}` }]);
+    const query = this.getQueryString([{ key: 'page', value: `${page}` }, { key: 'limit', value: `${Api.carsLimit}` }]);
     const response: Response = await fetch(`${this.baseURL}${this.path.garage}${query}`);
     const data = response.json();
     return data;
@@ -67,11 +68,16 @@ class Api {
     return response.json();
   }
 
-  public async removeCar(id: number):Promise<object> {
-    const response = await fetch(`${this.baseURL}${this.path.garage}/${id}`, {
-      method: 'DELETE',
-    });
-    return response.json();
+  public async removeCar(id: number):Promise<object | null> {
+    try {
+      const response = await fetch(`${this.baseURL}${this.path.garage}/${id}`, {
+        method: 'DELETE',
+      });
+      return await response.json();
+    } catch (err) {
+      console.error(err);
+    }
+    return null;
   }
 
   public async setEngineStatus(id: number | undefined, status: EngineStatus): Promise<number> {
@@ -153,7 +159,7 @@ class Api {
     try {
       let response: Response;
       if (pageNumber) {
-        response = await fetch(`${this.baseURL}${this.path.winners}?_page=${pageNumber}&_limit=${this.limit}&_sort=${typeSort}&_order=${orderSort}`, {
+        response = await fetch(`${this.baseURL}${this.path.winners}?_page=${pageNumber}&_limit=${Api.winnersLimit}&_sort=${typeSort}&_order=${orderSort}`, {
           method: 'GET',
         });
       } else {

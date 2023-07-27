@@ -1,9 +1,15 @@
 import Component from '../../templates/component';
 import { CarData } from '../../../types/interfaces';
-import { createBlock, findElement } from '../../helpers/helpers';
+import {
+  createBlock, createCarSVG, findElement,
+} from '../../helpers/helpers';
 import Api from '../../api/api';
 import { EngineStatus } from '../../../types/enums';
 import Race from './race';
+import {
+  getLocalStorage, parseLocalStorage, stringifyLocalStorage,
+} from '../../../state/localstorage';
+import { setSelectedState } from '../../../state/state';
 
 class Garage extends Component {
   public static carsNumber: number;
@@ -21,14 +27,19 @@ class Garage extends Component {
   constructor(tag: keyof HTMLElementTagNameMap, className: string) {
     super(tag, className);
     this.api = new Api();
-    Garage.pageNum = 1;
-    Garage.limit = 7;
+    Garage.pageNum = parseLocalStorage('currentGaragePage') || 1;
+    Garage.carsNumber = parseLocalStorage('garageCarsNumber') || 0;
+    Garage.limit = Api.carsLimit;
   }
 
   public async render(): Promise<HTMLElement> {
     this.container.innerHTML = '';
 
     this.setCarsNumber();
+
+    if (Garage.pageNum > Math.ceil(Garage.carsNumber / Api.carsLimit)) {
+      Garage.pageNum = 1;
+    }
 
     Garage.carsData = await this.api.getCarsFromPage(Garage.pageNum);
 
@@ -41,7 +52,7 @@ class Garage extends Component {
     const page = createBlock({
       tag: 'h3',
       className: 'garage-page',
-      innerHTML: `Page ${Garage.pageNum}`,
+      innerHTML: `Page #${Garage.pageNum}`,
       parentBlock: this.container,
     });
 
@@ -51,10 +62,18 @@ class Garage extends Component {
       parentBlock: this.container,
     });
 
-    await this.renderCars(carsContainer);
+    this.renderCars(carsContainer);
+
+    this.renderPageBtns();
 
     garageTitle.innerHTML = `Garage (${Garage.carsNumber})`;
 
+    stringifyLocalStorage('currentGaragePage', Garage.pageNum);
+
+    return this.container;
+  }
+
+  public renderPageBtns(): void {
     const pageBtnsContainer = createBlock({
       tag: 'div',
       className: 'page-buttons',
@@ -90,8 +109,6 @@ class Garage extends Component {
     if (Garage.pageNum === 1) {
       pageBtnPrev.disabled = true;
     }
-
-    return this.container;
   }
 
   public moveToNextPage(): void {
@@ -114,6 +131,7 @@ class Garage extends Component {
   public async setCarsNumber(): Promise<void> {
     const data = await this.api.getCars();
     Garage.carsNumber = data.length;
+    stringifyLocalStorage('garageCarsNumber', Garage.carsNumber);
   }
 
   public renderCarsNumber(): void {
@@ -147,7 +165,7 @@ class Garage extends Component {
       parentBlock: container,
     });
 
-    const carHeaderBtns = this.renderCarHeaderBtns();
+    const carHeaderBtns = this.renderCarHeaderBtns(data.id);
     carContainerHeader.append(carHeaderBtns);
 
     const carName = createBlock({
@@ -169,16 +187,9 @@ class Garage extends Component {
     const carImage = createBlock({
       tag: 'div',
       className: 'car-drive__image',
-      innerHTML: `<svg width="50px" height="50px" viewBox="0 0 20 15" xmlns="http://www.w3.org/2000/svg">
-      <rect x="0" fill="none" width="50" height="50"/>
-      <g>
-      <circle cx="14" cy="13.5" r="1.5"/>
-      <path d="M16.1 9h-1.6c-.6-2.7-3.2-4.5-5.9-3.9C6.6 5.5 5 7 4.6 9h-.7c-1 0-1.9.9-1.9 1.9v1.3c0 .7.6 1.3 1.3 1.3h.3c0-1.3 1.1-2.4 2.4-2.4 1.3 0 2.4 1.1 2.4 2.4h3.2c0-1.3 1.1-2.4 2.4-2.4 1.3 0 2.4 1.1 2.4 2.4h.3c.7 0 1.3-.6 1.3-1.3V11c0-1.1-.9-2-1.9-2zM6.2 9c.5-1.9 2.5-2.9 4.3-2.4 1.1.3 2 1.2 2.4 2.4H6.2zM6 12c-.8 0-1.5.7-1.5 1.5S5.2 15 6 15s1.5-.7 1.5-1.5S6.8 12 6 12z"/>
-      </g>
-      </svg>`,
+      innerHTML: createCarSVG(50, 50, '0 0 20 15'),
       parentBlock: carDriveContainer,
     });
-
     carImage.style.fill = data.color;
 
     const flag = createBlock({
@@ -188,7 +199,6 @@ class Garage extends Component {
     });
 
     const parent = carContainerHeader.closest('.car');
-
     if (parent) {
       parent.id = `${data.id}`;
     }
@@ -196,19 +206,21 @@ class Garage extends Component {
     return container;
   }
 
-  private renderCarHeaderBtns(): HTMLElement {
+  private renderCarHeaderBtns(id: number): HTMLElement {
     const carHeaderBtns = createBlock({
       tag: 'div',
       className: 'car-header__btns',
     });
+
     const carSelectBtn = createBlock({
-      tag: 'div',
+      tag: 'button',
       className: 'car-header__btn btn btn_select',
       innerHTML: 'select',
       parentBlock: carHeaderBtns,
     });
+
     const carRemoveBtn = createBlock({
-      tag: 'div',
+      tag: 'button',
       className: 'car-header__btn btn btn_remove',
       innerHTML: 'remove',
       parentBlock: carHeaderBtns,
@@ -217,25 +229,33 @@ class Garage extends Component {
     carRemoveBtn.addEventListener('click', this.btnRemoveHandler.bind(this));
     carSelectBtn.addEventListener('click', this.btnSelectHandler.bind(this));
 
+    const selectedBtnID = Number(getLocalStorage('selectedCarID'));
+    if (selectedBtnID && selectedBtnID === id) {
+      carSelectBtn.style.color = '#1b6124';
+    }
+
     return carHeaderBtns;
   }
 
   private async btnSelectHandler(e: Event): Promise<void> {
     const { target } = e;
-    if (target && target instanceof HTMLElement) {
+    if (target && target instanceof HTMLButtonElement) {
       const id = Number(target.closest('.car')?.id);
-
-      const inputNameUpdate: HTMLInputElement = findElement('.input-text_update');
-      const inputColorPicker: HTMLInputElement = findElement('.input-color-picker_update');
-      const inputBtn: HTMLButtonElement = findElement('.btn_update');
-      inputNameUpdate.disabled = false;
-      inputColorPicker.disabled = false;
-      inputBtn.disabled = false;
+      target.style.color = '#00ff00';
 
       const carData = await this.api.getCar(id);
-      inputNameUpdate.value = carData.name;
-      inputColorPicker.value = carData.color;
 
+      const inputNameUpdate: HTMLInputElement = findElement('.input-text_update');
+      const inputColorPickerUpdate: HTMLInputElement = findElement('.input-color-picker_update');
+      const inputBtnUpdate: HTMLButtonElement = findElement('.btn_update');
+      inputNameUpdate.disabled = false;
+      inputColorPickerUpdate.disabled = false;
+      inputBtnUpdate.disabled = false;
+
+      inputNameUpdate.value = carData.name;
+      inputColorPickerUpdate.value = carData.color;
+
+      setSelectedState(id, inputNameUpdate.value, inputColorPickerUpdate.value);
       Garage.selectedCarID = id;
     }
   }
@@ -246,14 +266,19 @@ class Garage extends Component {
       const carsContainer: HTMLDivElement = findElement('.cars-container');
       const id = Number(target.closest('.car')?.id);
       const carElement: HTMLDivElement = findElement(`[id='${id}']`);
+
       carsContainer.removeChild(carElement);
+
       this.api.removeCar(id);
       this.api.removeWinner(id);
+
       await this.rerenderCarsNumber();
+
       Garage.carsData = await this.api.getCarsFromPage(Garage.pageNum);
       if (!Garage.carsData.length) {
         Garage.pageNum -= 1;
       }
+
       this.render();
     }
   }

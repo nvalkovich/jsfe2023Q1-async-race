@@ -1,7 +1,10 @@
 import Component from '../../templates/component';
-import { CarData, WinnerData } from '../../../types/interfaces';
-import { createBlock, findElement } from '../../helpers/helpers';
+import { WinnerData } from '../../../types/interfaces';
+import { createBlock, createCarSVG, findElement } from '../../helpers/helpers';
 import Api from '../../api/api';
+import {
+  getLocalStorage, setLocalStorage,
+} from '../../../state/localstorage';
 
 class WinnersTable extends Component {
   public static winnersNumber: number;
@@ -17,15 +20,20 @@ class WinnersTable extends Component {
   constructor(tag: keyof HTMLElementTagNameMap, className: string) {
     super(tag, className);
     this.api = new Api();
-    WinnersTable.pageNum = 1;
-    WinnersTable.limit = 10;
+    WinnersTable.pageNum = Number(getLocalStorage('currentWinnerPage'));
+    WinnersTable.limit = Api.winnersLimit;
   }
 
   public async render(): Promise<HTMLElement> {
     this.container.innerHTML = '';
-
-    WinnersTable.winnersData = await this.api.getWinners();
-    WinnersTable.winnersNumber = WinnersTable.winnersData.length;
+    const winners = await this.api.getWinners();
+    WinnersTable.winnersNumber = winners.length;
+    if (!WinnersTable.pageNum
+      || WinnersTable.pageNum > Math.ceil(WinnersTable.winnersNumber / Api.winnersLimit)) {
+      WinnersTable.pageNum = 1;
+    }
+    WinnersTable.winnersData = await
+    this.api.getWinners(WinnersTable.pageNum);
 
     const winnersTitle = createBlock({
       tag: 'h2',
@@ -34,39 +42,83 @@ class WinnersTable extends Component {
       parentBlock: this.container,
     });
 
-    this.renderWinnersTable();
-
-    return this.container;
-  }
-
-  public renderWinnersTable():HTMLElement {
-    this.container.innerHTML = '';
-    console.log(WinnersTable.winnersData);
-
     const winnersTableContainer = createBlock({
       tag: 'div',
       className: 'winners-table-container',
       parentBlock: this.container,
     });
+
+    this.renderWinnersTable(winnersTableContainer);
+
+    return this.container;
+  }
+
+  public async renderWinnersTable(container: HTMLElement):Promise<HTMLElement> {
+    const sortCategory = getLocalStorage('currentSortCategory');
+    const sortOrder = getLocalStorage('currentSortOrder');
+    if (sortCategory && sortOrder) {
+      WinnersTable.winnersData = await this.api.getWinners(
+        WinnersTable.pageNum,
+        sortCategory,
+        sortOrder,
+      );
+    }
+
     const page = createBlock({
       tag: 'h3',
       className: 'winners-table-container__page',
       innerHTML: `Page #${WinnersTable.pageNum}`,
-      parentBlock: winnersTableContainer,
+      parentBlock: container,
     });
     const winnersTable = createBlock({
       tag: 'div',
       className: 'winners-table-container__table winners-table',
-      parentBlock: winnersTableContainer,
+      parentBlock: container,
     });
 
     this.renderWinnersTableHead(winnersTable);
     this.renderWinnersTableData(winnersTable);
 
+    const winnersPageBtnsContainer = createBlock({
+      tag: 'div',
+      className: 'winner-page-buttons',
+      parentBlock: container,
+    });
+
+    const winnersPageBtnPrev = createBlock({
+      tag: 'button',
+      className: 'winner-page-buttons__btn btn winners-btn winners-btn_prev',
+      innerHTML: '<<',
+      parentBlock: winnersPageBtnsContainer,
+    });
+
+    const winnersPageBtnNext = createBlock({
+      tag: 'button',
+      className: 'winner-page-buttons__btn btn winners-btn winners-btn_next',
+      innerHTML: '>>',
+      parentBlock: winnersPageBtnsContainer,
+    });
+
+    winnersPageBtnNext.addEventListener('click', () => {
+      this.moveToNextWinnersPage();
+    });
+
+    winnersPageBtnPrev.addEventListener('click', () => {
+      this.moveToPrevWinnersPage();
+    });
+
+    if (WinnersTable.pageNum === Math.ceil(WinnersTable.winnersNumber / WinnersTable.limit)) {
+      winnersPageBtnNext.disabled = true;
+    }
+
+    if (WinnersTable.pageNum === 1) {
+      winnersPageBtnPrev.disabled = true;
+    }
+
     const sortContainer = createBlock({
       tag: 'div',
-      className: 'winners-table-container__sort-container sort--container',
-      parentBlock: winnersTableContainer,
+      className: 'winners-table-container__sort-container sort-container',
+      parentBlock: container,
     });
 
     const sortByWins = this.renderSortBtns('wins');
@@ -75,6 +127,20 @@ class WinnersTable extends Component {
     sortContainer.append(sortByTime);
 
     return this.container;
+  }
+
+  public moveToNextWinnersPage(): void {
+    this.container.innerHTML = '';
+    WinnersTable.pageNum += 1;
+    setLocalStorage('currentWinnerPage', WinnersTable.pageNum.toString());
+    this.render();
+  }
+
+  public moveToPrevWinnersPage(): void {
+    this.container.innerHTML = '';
+    WinnersTable.pageNum -= 1;
+    setLocalStorage('currentWinnerPage', WinnersTable.pageNum.toString());
+    this.render();
   }
 
   private renderSortBtns(category: string): HTMLElement {
@@ -110,17 +176,19 @@ class WinnersTable extends Component {
   public async btnSortHandler(e: Event):Promise<void> {
     const { target } = e;
     if (target && target instanceof HTMLElement) {
-      let category:string;
+      let category = 'id';
       if (target.closest('.sort-btns-container')?.classList.contains('sort-btns-container_time')) {
         category = 'time';
       } else {
         category = 'wins';
       }
       const order = target.innerHTML;
-      console.log('asctime');
       WinnersTable.winnersData = await this.api.getWinners(WinnersTable.pageNum, category, order);
-      console.log(WinnersTable.winnersData);
-      this.renderWinnersTable();
+      setLocalStorage('currentSortOrder', order);
+      setLocalStorage('currentSortCategory', category);
+      const winnersTableContainer: HTMLElement = findElement('.winners-table-container');
+      winnersTableContainer.innerHTML = '';
+      this.renderWinnersTable(winnersTableContainer);
     }
   }
 
@@ -155,23 +223,20 @@ class WinnersTable extends Component {
         parentBlock: table,
       });
 
+      const prevNumbers = (WinnersTable.pageNum - 1) * WinnersTable.limit;
+      const number = (index + 1) + prevNumbers;
+
       const winnersTableDataNum = createBlock({
         tag: 'td',
         className: 'winners-table-row__data table-data_num',
-        innerHTML: `${index + 1}`,
+        innerHTML: `${number}`,
         parentBlock: winnersTableDataRow,
       });
 
       const winnersTableDataImage = createBlock({
         tag: 'td',
         className: 'winners-table-row__data table-data_image',
-        innerHTML: `<svg width="35px" height="35px" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-        <rect x="0" fill="none" width="35" height="35"/>
-        <g>
-        <circle cx="14" cy="13.5" r="1.5"/>
-        <path d="M16.1 9h-1.6c-.6-2.7-3.2-4.5-5.9-3.9C6.6 5.5 5 7 4.6 9h-.7c-1 0-1.9.9-1.9 1.9v1.3c0 .7.6 1.3 1.3 1.3h.3c0-1.3 1.1-2.4 2.4-2.4 1.3 0 2.4 1.1 2.4 2.4h3.2c0-1.3 1.1-2.4 2.4-2.4 1.3 0 2.4 1.1 2.4 2.4h.3c.7 0 1.3-.6 1.3-1.3V11c0-1.1-.9-2-1.9-2zM6.2 9c.5-1.9 2.5-2.9 4.3-2.4 1.1.3 2 1.2 2.4 2.4H6.2zM6 12c-.8 0-1.5.7-1.5 1.5S5.2 15 6 15s1.5-.7 1.5-1.5S6.8 12 6 12z"/>
-        </g>
-        </svg>`,
+        innerHTML: createCarSVG(35, 35, '0 0 20 20'),
         parentBlock: winnersTableDataRow,
       });
 
@@ -201,13 +266,7 @@ class WinnersTable extends Component {
         innerHTML: `${winner.time}`,
         parentBlock: winnersTableDataRow,
       });
-
-      winnersTableDataTime.addEventListener('click', this.sortWinners);
     });
-  }
-
-  public sortWinners():void {
-    console.log('sort');
   }
 }
 
