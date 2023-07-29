@@ -1,4 +1,4 @@
-import { animate, stopAnimate } from './animation';
+import { startAnimation, stopAnimate } from './animation';
 import { findElement } from '../../helpers/helpers';
 import { EngineStatus } from '../../../types/enums';
 import { CarData } from '../../../types/interfaces';
@@ -9,6 +9,7 @@ import { parseLocalStorage, stringifyLocalStorage } from '../../../state/localst
 import { activateBtnsAfterRace } from '../../../state/state';
 
 const api = new Api();
+const msPerSec = 1000;
 
 class Race {
   public winnerID: number | undefined;
@@ -32,42 +33,47 @@ class Race {
     const raceBtn: HTMLButtonElement = findElement('.btn_race');
 
     if (status === EngineStatus.Start && duration) {
-      stringifyLocalStorage('stoppedCars', 0);
       carStartBtn.disabled = true;
       carStopBtn.disabled = false;
       raceBtn.disabled = true;
 
-      animate(duration, id, car);
-      const drive = await api.setDriveStatus(id);
+      stringifyLocalStorage('stoppedCars', 0);
+      startAnimation(duration, id, car);
+
+      const drive = await api.setEngineStatus(id);
 
       if (drive && !this.winnerID && id && carsOnPage) {
-        this.winnerID = id;
-        const time = Number((duration / 1000).toFixed(2));
+        const time = Number((duration / msPerSec).toFixed(2));
         const winnerCar = await api.getCar(id);
+
+        this.winnerID = id;
         this.win.renderWin(this.winnerID, winnerCar.name, time);
+
         carsOnPage.forEach((el) => {
           stopAnimate(el.id);
         });
       }
       if (!drive) {
         const currentGaragePage: number | null = parseLocalStorage('currentGaragePage') || 1;
+        const currentStoppedCars: number | null = parseLocalStorage('stoppedCars') || 0;
         const cars = await api.getCarsFromPage(currentGaragePage);
 
-        const currentStoppedCars: number | null = parseLocalStorage('stoppedCars') || 0;
         if (currentStoppedCars < cars.length) {
           stringifyLocalStorage('stoppedCars', currentStoppedCars + 1);
         }
 
         const stoppedCars: number | null = parseLocalStorage('stoppedCars') || 0;
+
         if (stoppedCars === cars.length) {
           activateBtnsAfterRace();
         }
+
         stopAnimate(id);
       }
     } else if (status === EngineStatus.Stop) {
-      stopAnimate(id, car);
       carStartBtn.disabled = false;
       carStopBtn.disabled = true;
+      stopAnimate(id, car);
       activateBtnsAfterRace();
     }
   }

@@ -1,21 +1,27 @@
 import { findElement } from '../../helpers/helpers';
 
 const animationId: { [key: string]: number } = {};
+const carImageSize = 60;
+const rightIndent = 160;
 
 const renderAnimation = (progress: number, carElement: HTMLDivElement): void => {
   const carDriveContainer: HTMLElement = findElement('.car-drive');
-  const widthScreen: number = carDriveContainer.clientWidth - 160;
+  const widthScreen: number = carDriveContainer.clientWidth - rightIndent;
   const car = carElement;
-  car.style.left = `${60 + progress * widthScreen}px`;
+  car.style.left = `${carImageSize + progress * widthScreen}px`;
 };
 
 const timing = (timeFraction: number): number => timeFraction;
 
-export const animate = (duration: number, id: number | undefined, car: HTMLDivElement): number => {
+export const startAnimation = (
+  duration: number,
+  id: number | undefined,
+  car: HTMLDivElement,
+)
+: number => {
   const start: number = performance.now();
 
-  // eslint-disable-next-line @typescript-eslint/no-shadow
-  return requestAnimationFrame(function animate(time: number): void {
+  const animate = (time: number): void => {
     let timeFraction: number = (time - start) / duration;
     if (timeFraction > 1) timeFraction = 1;
 
@@ -26,7 +32,9 @@ export const animate = (duration: number, id: number | undefined, car: HTMLDivEl
     if (timeFraction < 1 && id) {
       animationId[id] = requestAnimationFrame(animate);
     }
-  });
+  };
+
+  return requestAnimationFrame(animate);
 };
 
 export const stopAnimate = (id: number | undefined, carElement?: HTMLDivElement): void => {
@@ -34,7 +42,7 @@ export const stopAnimate = (id: number | undefined, carElement?: HTMLDivElement)
     cancelAnimationFrame(animationId[id]);
     if (carElement) {
       const car = carElement;
-      car.style.left = `${60}px`;
+      car.style.left = `${carImageSize}px`;
     }
   }
 };

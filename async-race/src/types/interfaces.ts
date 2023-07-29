@@ -19,3 +19,13 @@ export interface UpdateWinnerData {
   wins: number,
   time: number
 }
+
+export interface QueryParams {
+  key: string,
+  value: string
+}
+
+export interface CarRaceData {
+  id: number | undefined,
+  duration: number,
+}

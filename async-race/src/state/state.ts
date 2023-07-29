@@ -18,16 +18,18 @@ export const removeCreateState = (): void => {
   removeLocalStorage('createInputColor');
 };
 
-export const disableBtnsForRace = ():void => {
+export const disableBtnsForRace = (): void => {
   const buttons = findElementCollections('button');
+
   for (let i = 0; i < buttons.length; i += 1) {
     const button = buttons[i] as HTMLButtonElement;
     button.disabled = true;
   }
 };
 
-export const activateBtnsAfterRace = ():void => {
+export const activateBtnsAfterRace = (): void => {
   const buttons = findElementCollections('button');
+
   for (let i = 0; i < buttons.length; i += 1) {
     const button = buttons[i] as HTMLButtonElement;
     button.disabled = false;

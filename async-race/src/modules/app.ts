@@ -18,17 +18,21 @@ class App {
     this.header = new HeaderButtons('header', 'header');
   }
 
-  public static renderNewPage(id: string):void {
+  public static renderNewPage(id: string): void {
     const currentPageHTML = document.querySelector(`#${this.defaultPageID}`);
+
     if (currentPageHTML) {
       currentPageHTML.remove();
     }
+
     let page: Page | null = null;
+
     if (id === PageIds.Garage) {
       page = new GaragePage(id);
     } else if (id === PageIds.Winners) {
       page = new WinnersPage(id);
     }
+
     if (page) {
       const pageHTML = page.render();
       pageHTML.id = App.defaultPageID;

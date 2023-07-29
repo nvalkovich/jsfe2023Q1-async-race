@@ -1,7 +1,7 @@
 import Component from '../../templates/component';
 import { CarData } from '../../../types/interfaces';
 import {
-  createBlock, createCarSVG, findElement,
+  createBlock, createCarSVG, findElement, getDuration, isPageNumCorrect,
 } from '../../helpers/helpers';
 import Api from '../../api/api';
 import { EngineStatus } from '../../../types/enums';
@@ -37,9 +37,9 @@ class Garage extends Component {
 
     this.setCarsNumber();
 
-    if (Garage.pageNum > Math.ceil(Garage.carsNumber / Api.carsLimit)) {
-      Garage.pageNum = 1;
-    }
+    Garage.pageNum = isPageNumCorrect(Garage.pageNum, Garage.carsNumber, Api.carsLimit)
+      ? Garage.pageNum
+      : 1;
 
     Garage.carsData = await this.api.getCarsFromPage(Garage.pageNum);
 
@@ -190,6 +190,7 @@ class Garage extends Component {
       innerHTML: createCarSVG(50, 50, '0 0 20 15'),
       parentBlock: carDriveContainer,
     });
+
     carImage.style.fill = data.color;
 
     const flag = createBlock({
@@ -324,7 +325,7 @@ class Garage extends Component {
   public async race(id: number, status: EngineStatus): Promise<void> {
     const race = new Race();
     if (status === EngineStatus.Start) {
-      const duration = await this.api.setEngineStatus(id, EngineStatus.Start);
+      const duration = await getDuration(id) || 0;
       race.startRace(id, EngineStatus.Start, duration);
     } else if (status === EngineStatus.Stop) {
       await this.api.setEngineStatus(id, EngineStatus.Stop);

@@ -1,11 +1,11 @@
 import Component from '../../templates/component';
 import {
-  createBlock, findElement, generateCars,
+  createBlock, findElement, generateCars, getDuration,
 } from '../../helpers/helpers';
 import { InputCategories, EngineStatus } from '../../../types/enums';
 import Garage from './garage';
 import Api from '../../api/api';
-import { CarData } from '../../../types/interfaces';
+import { CarData, CarRaceData } from '../../../types/interfaces';
 import Race from './race';
 import {
   getLocalStorage, removeLocalStorage, setLocalStorage,
@@ -25,13 +25,13 @@ class Settings extends Component {
     this.garage = new Garage('div', 'cars');
   }
 
-  public render():HTMLElement {
+  public render(): HTMLElement {
     this.renderInputFields();
     this.renderCarControlBtns();
     return this.container;
   }
 
-  private renderInputFields():void {
+  private renderInputFields(): void {
     const inputFieldsContainer = createBlock({
       tag: 'div',
       className: 'input-fields-container',
@@ -89,8 +89,10 @@ class Settings extends Component {
 
   private changeInputHandler(e: Event): void {
     const { target } = e;
+
     if (target && target instanceof HTMLInputElement) {
       const category = target.closest('.input-field')?.id;
+
       if (target.classList.contains('input-text')) {
         setLocalStorage(`${category}InputText`, target.value);
       } else if (target.classList.contains('input-color-picker')) {
@@ -105,59 +107,63 @@ class Settings extends Component {
       className: 'control-btns-container',
     });
 
-    const carControlBtnsCategories = ['race', 'reset', 'generate'];
     const btnRace = createBlock({
       tag: 'button',
       className: 'control-btns-container__btn btn btn_race',
       innerHTML: 'race',
       parentBlock: btnsControlContainer,
     });
+
     const btnReset = createBlock({
       tag: 'button',
       className: 'control-btns-container__btn btn btn_reset',
       innerHTML: 'reset',
       parentBlock: btnsControlContainer,
     });
+
     const btnGenerate = createBlock({
       tag: 'button',
       className: 'control-btns-container__btn btn btn_generate',
       innerHTML: 'generate',
       parentBlock: btnsControlContainer,
     });
-    btnGenerate.addEventListener('click', this.btnGenerateHandler.bind(this));
 
+    btnGenerate.addEventListener('click', this.btnGenerateHandler.bind(this));
     btnRace.addEventListener('click', this.btnControlRaceHandler.bind(this));
     btnReset.addEventListener('click', this.btnControlRaceHandler.bind(this));
+
     this.container.append(btnsControlContainer);
   }
 
   private async btnControlRaceHandler(e: Event): Promise<void> {
     const { target } = e;
+
     if (target && target instanceof HTMLElement) {
       const cars = await this.api.getCarsFromPage(Garage.pageNum);
-
       let status: EngineStatus;
+
       if (target.innerHTML === 'race') {
         removeLocalStorage('stoppedCars');
         disableBtnsForRace();
         status = EngineStatus.Start;
 
         const carsData = await Promise.all(
-          cars.map(async (car): Promise<
-          { id: number | undefined,
-            duration: number,
-          }> => ({
+          cars.map(async (car): Promise<CarRaceData> => ({
             id: car.id,
-            duration: await this.api.setEngineStatus(car.id, status),
+            duration: await getDuration(car.id) || 0,
           })),
         );
+
         const race = new Race();
+
         carsData.forEach((car) => {
           race.startRace(car.id, EngineStatus.Start, car.duration, cars);
         });
       } else if (target.innerHTML === 'reset') {
         status = EngineStatus.Stop;
+
         const race = new Race();
+
         cars.forEach((car) => {
           race.startRace(car.id, EngineStatus.Stop);
         });
@@ -167,10 +173,13 @@ class Settings extends Component {
 
   private async btnGenerateHandler(e: Event): Promise<void> {
     generateCars();
+
     const cars = await this.api.getCars();
+    await this.garage.rerenderCarsNumber();
+    Garage.pageNum = Math.ceil(cars.length / Garage.limit);
+
     const garageElement = findElement('.cars');
     garageElement.innerHTML = '';
-    Garage.pageNum = Math.ceil(cars.length / Garage.limit);
     const newGarage = await this.garage.render();
     garageElement.append(newGarage);
   }
@@ -188,43 +197,50 @@ class Settings extends Component {
       }
 
       const inputColorPicker: HTMLInputElement = findElement(`.input-color-picker_${category}`);
-      const inputBtn: HTMLButtonElement = findElement(`.btn_${category}`);
-
+      let newCar: CarData;
+      let carContainer: HTMLDivElement;
       const newCarData = {
         name: inputName.value,
         color: inputColorPicker.value,
       };
 
-      let newCar: CarData;
-      let carContainer: HTMLDivElement;
-
       if (category === InputCategories.Create) {
         this.api.createCar(newCarData);
-        const cars = await this.api.getCars();
         await this.garage.rerenderCarsNumber();
+
         const garageElement = findElement('.cars');
         garageElement.innerHTML = '';
+
+        const cars = await this.api.getCars();
         Garage.pageNum = Math.ceil(cars.length / Garage.limit);
+
         const newGarage = await this.garage.render();
         garageElement.append(newGarage);
+
         removeCreateState();
       } else {
-        const id = getLocalStorage('selectedCarID') ? Number(getLocalStorage('selectedCarID')) : Garage.selectedCarID;
+        const id = Number(getLocalStorage('selectedCarID')) || Garage.selectedCarID;
+
         if (document.querySelector(`[id='${id}']`)) {
           newCar = await this.api.updateCar(id, newCarData);
           carContainer = findElement(`[id='${id}']`);
           carContainer.innerHTML = '';
           this.garage.renderCar(newCar, carContainer);
+
           const selectBtn: HTMLButtonElement = findElement(`[id='${id}'] .btn_select`);
-          selectBtn.style.color = '#ffffff';
+          selectBtn.classList.remove('selected');
         }
+
         removeSelectedState();
+
         const inputNameUpdate: HTMLInputElement = findElement('.input-text_update');
         const inputColorPickerUpdate: HTMLInputElement = findElement('.input-color-picker_update');
+
         inputNameUpdate.disabled = true;
         inputColorPickerUpdate.disabled = true;
         target.disabled = true;
       }
+
       inputName.value = '';
       inputColorPicker.value = '';
     }

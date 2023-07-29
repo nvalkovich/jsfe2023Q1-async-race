@@ -7,14 +7,14 @@ class GaragePage extends Page {
 
   private settings = new Settings();
 
-  public render():HTMLElement {
+  public render(): HTMLElement {
     const settingsBlock = this.settings.render();
     this.container.append(settingsBlock);
     this.renderCars();
     return this.container;
   }
 
-  public async renderCars():Promise<HTMLElement> {
+  public async renderCars(): Promise<HTMLElement> {
     const carsBlock = await this.cars.render();
     this.container.append(carsBlock);
     return this.container;

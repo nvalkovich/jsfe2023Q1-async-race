@@ -2,7 +2,9 @@ export const getLocalStorage = (key: string): string | null => localStorage.getI
 
 export const parseLocalStorage = <T>(key: string): T | null => {
   const value = getLocalStorage(key);
+
   if (value === null) return value;
+
   try {
     return JSON.parse(value);
   } catch (e) {

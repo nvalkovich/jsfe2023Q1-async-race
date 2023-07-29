@@ -1,6 +1,8 @@
 import Component from '../../templates/component';
 import { WinnerData } from '../../../types/interfaces';
-import { createBlock, createCarSVG, findElement } from '../../helpers/helpers';
+import {
+  createBlock, createCarSVG, findElement, isPageNumCorrect,
+} from '../../helpers/helpers';
 import Api from '../../api/api';
 import {
   getLocalStorage, setLocalStorage,
@@ -17,6 +19,10 @@ class WinnersTable extends Component {
 
   public static limit: number;
 
+  private winnersTableCategories = [
+    'Number', 'Car', 'Name', 'Wins', 'Best time',
+  ];
+
   constructor(tag: keyof HTMLElementTagNameMap, className: string) {
     super(tag, className);
     this.api = new Api();
@@ -26,13 +32,21 @@ class WinnersTable extends Component {
 
   public async render(): Promise<HTMLElement> {
     this.container.innerHTML = '';
+
     const winners = await this.api.getWinners();
+
     WinnersTable.winnersNumber = winners.length;
-    if (!WinnersTable.pageNum
-      || WinnersTable.pageNum > Math.ceil(WinnersTable.winnersNumber / Api.winnersLimit)) {
-      WinnersTable.pageNum = 1;
-    }
+
+    WinnersTable.pageNum = isPageNumCorrect(
+      WinnersTable.pageNum,
+      WinnersTable.winnersNumber,
+      Api.winnersLimit,
+    )
+      ? WinnersTable.pageNum
+      : 1;
+
     WinnersTable.winnersData = await
+
     this.api.getWinners(WinnersTable.pageNum);
 
     const winnersTitle = createBlock({
@@ -53,9 +67,10 @@ class WinnersTable extends Component {
     return this.container;
   }
 
-  public async renderWinnersTable(container: HTMLElement):Promise<HTMLElement> {
+  public async renderWinnersTable(container: HTMLElement): Promise<HTMLElement> {
     const sortCategory = getLocalStorage('currentSortCategory');
     const sortOrder = getLocalStorage('currentSortOrder');
+
     if (sortCategory && sortOrder) {
       WinnersTable.winnersData = await this.api.getWinners(
         WinnersTable.pageNum,
@@ -70,6 +85,7 @@ class WinnersTable extends Component {
       innerHTML: `Page #${WinnersTable.pageNum}`,
       parentBlock: container,
     });
+
     const winnersTable = createBlock({
       tag: 'div',
       className: 'winners-table-container__table winners-table',
@@ -148,18 +164,21 @@ class WinnersTable extends Component {
       tag: 'div',
       className: `winners-table-container__sort-container sort-btns-container sort-btns-container_${category}`,
     });
+
     const sortContainerText = createBlock({
       tag: 'div',
       className: 'sort-btns-container__text',
       innerHTML: `Sort by ${category}: `,
       parentBlock: sortBtnsContainer,
     });
+
     const btnSortASC = createBlock({
       tag: 'button',
       className: 'sort-btns-container__btn btn',
       innerHTML: 'ASC',
       parentBlock: sortContainerText,
     });
+
     const btnSortDESC = createBlock({
       tag: 'button',
       className: 'sort-btns-container__btn btn',
@@ -173,30 +192,31 @@ class WinnersTable extends Component {
     return sortBtnsContainer;
   }
 
-  public async btnSortHandler(e: Event):Promise<void> {
+  public async btnSortHandler(e: Event): Promise<void> {
     const { target } = e;
+
     if (target && target instanceof HTMLElement) {
+      const order = target.innerHTML;
       let category = 'id';
+
       if (target.closest('.sort-btns-container')?.classList.contains('sort-btns-container_time')) {
         category = 'time';
       } else {
         category = 'wins';
       }
-      const order = target.innerHTML;
+
       WinnersTable.winnersData = await this.api.getWinners(WinnersTable.pageNum, category, order);
+
       setLocalStorage('currentSortOrder', order);
       setLocalStorage('currentSortCategory', category);
+
       const winnersTableContainer: HTMLElement = findElement('.winners-table-container');
       winnersTableContainer.innerHTML = '';
       this.renderWinnersTable(winnersTableContainer);
     }
   }
 
-  private winnersTableCategories = [
-    'Number', 'Car', 'Name', 'Wins', 'Best time',
-  ];
-
-  public renderWinnersTableHead(table: HTMLElement):void {
+  public renderWinnersTableHead(table: HTMLElement): void {
     const winnersTableHeadRow = createBlock({
       tag: 'tr',
       className: 'winners-table__head-row winners-table-head-row',
@@ -213,7 +233,7 @@ class WinnersTable extends Component {
     });
   }
 
-  public async renderWinnersTableData(table: HTMLElement):Promise<void> {
+  public async renderWinnersTableData(table: HTMLElement): Promise<void> {
     const data = WinnersTable.winnersData;
 
     data.forEach(async (winner, index) => {
@@ -241,7 +261,6 @@ class WinnersTable extends Component {
       });
 
       const carData = await this.api.getCar(winner.id);
-
       const { color } = carData;
 
       winnersTableDataImage.style.fill = color;
