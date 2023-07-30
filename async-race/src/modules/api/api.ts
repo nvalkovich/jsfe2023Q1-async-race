@@ -10,7 +10,7 @@ class Api {
 
   public static winnersLimit = 10;
 
-  private path:{ [key: string]: string };
+  private path: { [key: string]: string };
 
   constructor() {
     this.baseURL = 'http://127.0.0.1:3000';
@@ -21,7 +21,7 @@ class Api {
     };
   }
 
-  public async createCar(data: CarCreateData):Promise<[CarData]> {
+  public async createCar(data: CarCreateData): Promise<[CarData]> {
     const response = await fetch(`${this.baseURL}${this.path.garage}`, {
       method: 'POST',
       headers: {

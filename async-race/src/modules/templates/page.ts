@@ -12,7 +12,7 @@ class Page {
     return headerTitle;
   }
 
-  public render():HTMLElement {
+  public render(): HTMLElement {
     return this.container;
   }
 }

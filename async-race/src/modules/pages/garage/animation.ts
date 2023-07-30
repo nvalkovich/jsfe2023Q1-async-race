@@ -17,8 +17,7 @@ export const startAnimation = (
   duration: number,
   id: number | undefined,
   car: HTMLDivElement,
-)
-: number => {
+): number => {
   const start: number = performance.now();
 
   const animate = (time: number): void => {

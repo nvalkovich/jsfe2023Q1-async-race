@@ -12,8 +12,7 @@ export const createBlock = <K extends keyof HTMLElementTagNameMap>(data: {
   className?: string;
   innerHTML?: string;
   parentBlock?: HTMLElement;
-})
-  : HTMLElementTagNameMap[K] => {
+}): HTMLElementTagNameMap[K] => {
   const {
     tag, className, innerHTML, parentBlock,
   } = data;
@@ -43,11 +42,12 @@ export const findElement = <T extends Element>(selector: string): T => {
   return element;
 };
 
-export const generateRandomNumber = (min: number, max: number)
-: number => Math.floor(min + Math.random() * (max + 1 - min));
+export const generateRandomNumber = (
+  min: number,
+  max: number,
+): number => Math.floor(min + Math.random() * (max + 1 - min));
 
-export const generateRandomColor = ()
-: string => {
+export const generateRandomColor = (): string => {
   const colorLenth = 6;
   const chars = '0123456789ABCDEF';
   let color = '#';

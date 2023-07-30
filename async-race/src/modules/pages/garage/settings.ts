@@ -101,7 +101,7 @@ class Settings extends Component {
     }
   }
 
-  private renderCarControlBtns():void {
+  private renderCarControlBtns(): void {
     const btnsControlContainer = createBlock({
       tag: 'div',
       className: 'control-btns-container',

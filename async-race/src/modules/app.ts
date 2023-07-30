@@ -49,7 +49,7 @@ class App {
     window.location.hash = `#${App.defaultPageID}`;
   }
 
-  private route():void {
+  private route(): void {
     window.addEventListener('hashchange', (e) => {
       const hash = window.location.hash.slice(1);
       App.renderNewPage(hash);
