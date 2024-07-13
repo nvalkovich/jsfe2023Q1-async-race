@@ -1,6 +1,6 @@
 You need to start the [server](https://github.com/mikhama/async-race-api/blob/main/README.md) for the correct application's work
 
-1. [Task](https://github.com/rolling-scopes-school/tasks/blob/master/tasks/async-race.md)
+1. [Task](https://github.com/rolling-scopes-school/tasks/tree/master/stage2/tasks/async-race)
 2. [Deploy](https://nvalkovich-async-race.netlify.app/#garage)
 3. Screenshot: 
 ![image](https://github.com/rolling-scopes-school/nvalkovich-JSFE2023Q1/assets/105563182/44eb3d69-6ec7-43ea-8b10-1a2a6205abe0)
